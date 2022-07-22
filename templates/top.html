@@ -5,6 +5,21 @@
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pure.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/grid.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+        <script src="{{ url_for('static', filename='scripts/jquery.js') }}"></script>
+        <script type="text/javascript">
+            function getsearchtarget()
+            {
+                //Get the select select list and store in a variable
+                var e = document.getElementById("searchtarget");
+
+                //Get the selected value of the select list
+                var formaction = e.options[e.selectedIndex].value;
+
+                //Update the form action
+                document.searchform.action = formaction;
+
+            }
+        </script>
 
     </head>
     <body>
@@ -15,39 +30,17 @@
                         <a href="/"><span class="inner"></span></a>
                     </div>
                     <ul class="page-nav">
-                        
+                    {% if session.logged_in %}
+                        <li><a href="{{ url_for('home') }}"> <span style="text-transform:capitalize">Home</span> </a></li>
+                        <li><a href="{{ url_for('list_inventories') }}"> <span style="text-transform:capitalize">Inventory</span> </a></li> 
+                        <li><a href="{{ url_for('logout') }}"> <span style="text-transform:capitalize">Logout</span> </a></li>
+                    {% endif %}
                     </ul>
                 </div>
                 {% if session.logged_in %}
-                    <div style="float:right">
-                        <script src="{{ url_for('static', filename='scripts/jquery.js') }}"></script>
-                        <script type="text/javascript">
-                             /*list of available options*/ 
-                            var n = data_name_list.length;
-                            
-                            function getsearchtarget()
-                            {
-                                //Get the select select list and store in a variable
-                                var e = document.getElementById("searchtarget");
-
-                                //Get the selected value of the select list
-                                var formaction = e.options[e.selectedIndex].value;
-
-                                //Update the form action
-                                document.searchform.action = formaction;
-
-                            }
-
-                            
-                        </script>
-                        <form name="searchform" class="Search" method="POST" action="" onchange="getsearchtarget()" >
-
-                            <input type="text" name="searchfuzzy" id="userFuzzy" list="fuzzy-suggestion"  placeholder="Search here" autofocus required>
-                            <datalist id="fuzzy-suggestion">
-
-                            </datalist>
-
-
+                    <div>
+                        <form name="searchform" class="Search" method="POST" action="" onsubmit="getsearchtarget()" >
+                            <input type="text" name="searchterm"  list="fuzzy-suggestion"  placeholder="Search here" autofocus required>
                             <br/>
 
                             <select id="searchtarget" name="searchtarget">

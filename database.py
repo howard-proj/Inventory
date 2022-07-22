@@ -52,7 +52,7 @@ class SQLDatabase():
 
         # Create the users table
         self.execute("""CREATE TABLE Users(
-            Id INT,
+            user_id INT,
             username TEXT,
             password TEXT,
             admin INTEGER DEFAULT 0);
@@ -60,7 +60,7 @@ class SQLDatabase():
         self.commit()
 
         self.execute("""CREATE TABLE Inventory(
-            Id INT,
+            inventory_id INT,
             itemname TEXT,
             quantity INT);
         """)
@@ -81,13 +81,15 @@ class SQLDatabase():
                 FROM Users
                 WHERE username = '{username}' AND password = '{password}'
             """.format(username=username, password=password)
+
+        ##Returning JSON for one entry only
+        result = []
         self.execute(sql_query)
-        # If our query returns
-        temp = self.cur.fetchone()
-        if temp:
-            return temp
-        else:
-            return False
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchone()
+        result.append({a:b for a,b in zip(cols, returning)})
+        
+        return result
 
     def add_users(self, username, password, admin=0):
         count = self.count("Users")+1
@@ -100,7 +102,7 @@ class SQLDatabase():
         self.commit()
         return True
 
-    def add_invetory(self, itemname, quantity):
+    def add_inventory(self, itemname, quantity):
         count = self.count("Inventory")+1
         sql_cmd = """
                 INSERT INTO Inventory
@@ -120,11 +122,30 @@ class SQLDatabase():
         self.execute(sql_query)
         return self.cur.fetchall()
 
-    def select_all_item(self):
+    def select_all_inventories(self):
         sql_query = """
-                SELECT *
+                SELECT inventory_id, itemname, quantity
                 FROM Inventory
+                ORDER BY inventory_id
             """
+        # self.execute(sql_query)
+        ## Returning things in JSON format
+        result = []
         self.execute(sql_query)
-        return self.cur.fetchall()
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
 
+    
+
+        
+
+# myDatabase = SQLDatabase()
+# myDatabase.database_setup()
+# myDatabase.add_users('kanday', 'bos123', 1)
+
+# myDatabase.add_inventory("Nevada", 120)
+
+# print(myDatabase.select_all_users())

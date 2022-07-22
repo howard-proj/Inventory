@@ -1,0 +1,35 @@
+{% include 'top.html' %}
+<div class="content">
+    <div class="container details">
+        <h2 class="title"> All Inventories</h2>
+        <hr/>
+        {% if session.logged_in %}
+        <a class="pure-button" href="{{ url_for('add_inventory')}}">Add Product</a>
+        {% endif %}
+        <div>
+        <!-- All All Product -->
+            <table class="styled">
+                <thead>
+                    <tr>
+                        <td>Product ID</td>
+                        <td>Product Name</td>
+                        <td>Quantity</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for instance in allinventories %}
+                        <!-- Each row is a link to each individual inventory page -->
+                        <tr class="clickable-tr" data-href="{{ url_for('single_inventory', inventory_id=instance.inventory_id)}}">
+                            <td style="text-align: center">{{ instance.inventory_id }}</td>
+                            <td>{{ instance.itemname }}</td>
+                            <td>{{ instance.quantity }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+    
+            </table>
+    
+        </div>
+    </div>
+</div>
+{% include 'bottom.html'%}
