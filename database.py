@@ -47,6 +47,8 @@ class SQLDatabase():
         # # Clear the database if needed
         self.execute("DROP TABLE IF EXISTS Users")
         self.commit()
+        self.execute("DROP TABLE IF EXISTS Inventory")
+        self.commit()
 
         # Create the users table
         self.execute("""CREATE TABLE Users(
@@ -57,4 +59,72 @@ class SQLDatabase():
         """)
         self.commit()
 
+        self.execute("""CREATE TABLE Inventory(
+            Id INT,
+            itemname TEXT,
+            quantity INT);
+        """)
+        self.commit()
+
+    def count(self, table):
+        sql_cmd = """
+                SELECT *
+                FROM {table}
+            """.format(table=table)
+        self.execute(sql_cmd)
+        count = len(self.cur.fetchall())
+        return count
+
+    def check_credentials(self, username, password):
+        sql_query = """
+                SELECT username, password
+                FROM Users
+                WHERE username = '{username}' AND password = '{password}'
+            """.format(username=username, password=password)
+        self.execute(sql_query)
+        # If our query returns
+        temp = self.cur.fetchone()
+        if temp:
+            return temp
+        else:
+            return False
+
+    def add_users(self, username, password, admin=0):
+        count = self.count("Users")+1
+        sql_cmd = """
+                INSERT INTO Users
+                VALUES({id}, '{username}', '{password}', {admin})
+            """.format(id=count,username=username, password=password, admin=admin)
+
+        self.execute(sql_cmd)
+        self.commit()
+        return True
+
+    def add_invetory(self, itemname, quantity):
+        count = self.count("Inventory")+1
+        sql_cmd = """
+                INSERT INTO Inventory
+                VALUES({id}, '{itemname}', {quantity})
+            """.format(id=count,itemname=itemname, quantity=quantity)
+            
+        self.execute(sql_cmd)
+        self.commit()
+        return True
+
+
+    def select_all_users(self):
+        sql_query = """
+                SELECT *
+                FROM Users
+            """
+        self.execute(sql_query)
+        return self.cur.fetchall()
+
+    def select_all_item(self):
+        sql_query = """
+                SELECT *
+                FROM Inventory
+            """
+        self.execute(sql_query)
+        return self.cur.fetchall()
 
