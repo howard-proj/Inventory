@@ -45,14 +45,25 @@ def login():
     elif(request.method == 'GET'):
         return render_template("login.html", page=page)
 
-@app.route('/logout')
-def logout():
-    flash("You have logged out")
-    return redirect(url_for('index'))
-
 @app.route('/home')
 def home():
-    return render_template("home.html")
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('login'))
+
+    print("USER DETAILS")
+    print(user_details)
+    return render_template("home.html", 
+                            page=page,
+                            session=session,
+                            user=user_details)
+
+@app.route('/logout')
+def logout():
+    session['logged_in'] = False
+    page['bar'] = True
+    flash("You have logged out")
+    return redirect(url_for('home'))
+    
 
 @app.route('/inventory')
 def get_inventory():

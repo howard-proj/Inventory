@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>RandomCompany's Media Server</title>
+        <title>Brother System</title>
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/pure.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/grid.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
@@ -22,178 +22,35 @@
                     <div style="float:right">
                         <script src="{{ url_for('static', filename='scripts/jquery.js') }}"></script>
                         <script type="text/javascript">
-
-                            var data_name_list= '{{ tvshows_name| tojson }}';
-                            var data_name_list = data_name_list.substring(1).slice(0,-1).replace(/"/g, "").split(",");
-
                              /*list of available options*/ 
                             var n = data_name_list.length;
                             
                             function getsearchtarget()
                             {
-
                                 //Get the select select list and store in a variable
                                 var e = document.getElementById("searchtarget");
 
                                 //Get the selected value of the select list
                                 var formaction = e.options[e.selectedIndex].value;
 
-                                // if(formaction == "/search/tvshow"){
-                                //     data_name_list = '{{ tvshows_name| tojson }}';
-                                //     data_name_list = data_name_list.substring(1).slice(0,-1).replace(/"/g, "").split(",");
-                                //     n = data_name_list.length;
-                                // }
-                                // else if(formaction == "/search/movie"){
-                                //     data_name_list = '{{ movies_name| tojson }}';
-                                //     data_name_list = data_name_list.substring(1).slice(0,-1).replace(/"/g, "").split(",");
-                                //     n = data_name_list.length;
-                                // }
-                                // else if(formaction == "/search/song"){
-                                //     data_name_list = '{{ songs_name| tojson }}';
-                                //     data_name_list = data_name_list.substring(1).slice(0,-1).replace(/"/g, "").split(",");
-                                //     n = data_name_list.length;
-                                // }
-                                // else if(formaction == "/search/artist"){
-                                //     data_name_list = '{{ artists_name| tojson }}';
-                                //     data_name_list = data_name_list.substring(1).slice(0,-1).replace(/"/g, "").split(",");
-                                //     n = data_name_list.length;
-                                // }
-                                // else if(formaction == "/search/album"){
-                                //     data_name_list = '{{ albums_name| tojson }}';
-                                //     data_name_list = data_name_list.substring(1).slice(0,-1).replace(/"/g, "").split(",");
-                                //     n = data_name_list.length;
-                                // }
-                                // else if(formaction == "/search/podcast"){
-                                //     data_name_list = '{{ podcasts_name| tojson }}';
-                                //     data_name_list = data_name_list.substring(1).slice(0,-1).replace(/"/g, "").split(",");
-                                //     n = data_name_list.length;
-                                // }
-
                                 //Update the form action
                                 document.searchform.action = formaction;
 
                             }
 
-
-                            // function fuzzy(text, search) {
-                            //     search = search.replace(/\ /g, '').toLowerCase();
-                            //     // console.log(text);
-                            //     // console.log(typeof text);
-                            //     var tokens = text.split("");
-                            //     var searchPosition = 0;
-
-                            //     $.each(tokens, function(i, textChar) {
-                            //         if (textChar.toLowerCase() == search[searchPosition]) {
-                            //             // TODO maybe remove the strong
-                            //             console.log(tokens[i]);
-                            //             tokens[i] =  textChar;
-                            //             searchPosition++;
-                            //             if (searchPosition >= search.length) {
-                            //                 return false;
-                            //             }
-                            //         }
-                            //     });
-
-                            //     if (searchPosition != search.length) {
-                            //         return '';
-                            //     }
-                            //     return tokens.join('');
-
-                            // }
-
-                            // function refreshSearch() {
-                            //     var search = $('input[name=searchfuzzy]').val();
-                            //     var results = [];
-                            //     var gg = []
-
-                            //     $.each(data_name_list, function(i, data_name_list) {
-                            //         var result = fuzzy(data_name_list, search);
-                            //         if (result) {
- 
-                            //             results.push(`<option value="${result}">`);
-                            //             // console.log("RESULTS")
-                            //             // console.log(results);               
-                                       
-                            //         }
-                            //     });
-
-                            //     // TODO  datalist is not showing what we want
-                            //     var resultsHtml = results.join('');
-                            //     // console.log("RESULTSHTML")
-                            //     // console.log(resultsHtml);
-                            //     // 
-                            //     document.getElementById('fuzzy-suggestion').innerHTML = resultsHtml;
-                            //     // $("datalist[id=fuzzy-suggestion]").innerHTML(resultsHtml);
-                            //     console.log(document.getElementById("fuzzy-suggestion"));
-                            // }
-
-                            // $(function() {
-                            //     refreshSearch();
-                            //     // TODO may need to change it to oninput
-                            //     document.getElementById("userFuzzy").addEventListener("input", refreshSearch);
-                            //     // $('input[name=searchfuzzy]').keyup(refreshSearch);
-                            // })
-
-
-                            // function ac(value) { 
-                            //     //setting datalist empty at the start of function 
-                            //     //if we skip this step, same name will be repeated
-                            //     if (value === '') {
-                            //         document.getElementById("suggestion-list").innerHTML = '';
-                            //     }
-                                
-                            //     document.getElementById("suggestion-list").innerHTML = '';
-
-                                
-                                    
-                            //     l=value.length; 
-                            //     console.log(l);
-                            //     if(l==0) {
-                                    
-                            //         return;
-                            //     }
-
-                            //     if (value === '') {
-                            //         document.getElementById("suggestion-list").innerHTML = '';
-                            //     }
-                            //     //input query length 
-                            //     for (var i = 0; i<n; i++) { 
-                                    
-                            //         if(((data_name_list[i].toLowerCase()).indexOf(value.toLowerCase())) > - 1) 
-                            //         { 
-                            //             var node = document.createElement("option"); 
-                            //             var val = document.createTextNode(data_name_list[i]); 
-                            //             node.appendChild(val);
-
-                            //             document.getElementById("suggestion-list").appendChild(node);
-                                 
-                            //         } 
-                            //     }                              
-                            // }
-
                             
                         </script>
                         <form name="searchform" class="Search" method="POST" action="" onchange="getsearchtarget()" >
 
-                            <input type="text" name="searchfuzzy" id="userFuzzy" list="fuzzy-suggestion"  placeholder="Fuzzy Search" autofocus required>
+                            <input type="text" name="searchfuzzy" id="userFuzzy" list="fuzzy-suggestion"  placeholder="Search here" autofocus required>
                             <datalist id="fuzzy-suggestion">
 
                             </datalist>
 
-                            <input type="text" id="userText" list="suggestion-list" oninput="ac(this.value)" name="searchterm" placeholder="Search Term" autofocus required>
-                            <datalist id="suggestion-list" >
-                            </datalist>
+
                             <br/>
 
-
-
                             <select id="searchtarget" name="searchtarget">
-                                <!-- <option value="{{ url_for('search_tvshows' ) }}">TV Shows</option>
-                                <option value="{{ url_for('search_movies' ) }}">Movies</option>
-                                <option value="{{ url_for('search_songs' ) }}">Songs</option>
-                                <option value="{{ url_for('search_artists' ) }}">Artists</option>
-                                <option value="{{ url_for('search_albums' ) }}">Albums</option>
-                                <option value="{{ url_for('search_podcasts' ) }}">Podcasts</option> -->
                             </select>
                             <button type="submit">Search</button>
                         </form>

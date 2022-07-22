@@ -236,7 +236,7 @@ LAYOUT
 }
 
 .page-header .title .inner::after {
-  content: 'Media Server';
+  content: 'Brother Server';
 }
 
 @media (max-width: 720px) {
