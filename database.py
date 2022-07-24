@@ -49,10 +49,14 @@ class SQLDatabase():
         self.commit()
         self.execute("DROP TABLE IF EXISTS Inventory")
         self.commit()
+        self.execute("DROP TABLE IF EXISTS MetaDataType")
+        self.commit()
+        self.execute("DROP TABLE IF EXISTS MetaData")
+        self.commit()
 
         # Create the users table
         self.execute("""CREATE TABLE Users(
-            user_id INT,
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
             password TEXT,
             admin INTEGER DEFAULT 0);
@@ -60,20 +64,30 @@ class SQLDatabase():
         self.commit()
 
         self.execute("""CREATE TABLE Inventory(
-            inventory_id INT,
-            itemname TEXT,
+            inventory_id INTEGER PRIMARY KEY REFERENCES Stationery(stationery_id),
+            inventoryname TEXT,
             quantity INT);
         """)
         self.commit()
 
-    def count(self, table):
-        sql_cmd = """
-                SELECT *
-                FROM {table}
-            """.format(table=table)
-        self.execute(sql_cmd)
-        count = len(self.cur.fetchall())
-        return count
+        self.execute("""CREATE Table MetaDataType(
+            md_type_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            md_type_name VARCHAR (100) NOT NULL);
+        """)
+        self.commit()
+
+        self.execute(""""CREATE TABLE MetaData(
+            md_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            md_type_id INTEGER REFERENCES MetaDataType(md_type_id) NOT NULL,
+            md_value text NOT NULL);
+        """)
+        self.commit()
+
+        self.execute("""CREATE TABLE Stationery(
+            stationery_id INTEGER NOT NULL,
+            FOREIGN KEY ()
+        )
+        """)
 
     def check_credentials(self, username, password):
         sql_query = """
@@ -92,22 +106,20 @@ class SQLDatabase():
         return result
 
     def add_users(self, username, password, admin=0):
-        count = self.count("Users")+1
         sql_cmd = """
-                INSERT INTO Users
-                VALUES({id}, '{username}', '{password}', {admin})
-            """.format(id=count,username=username, password=password, admin=admin)
+                INSERT INTO Users(username, password, admin)
+                VALUES('{username}', '{password}', {admin})
+            """.format(username=username, password=password, admin=admin)
 
         self.execute(sql_cmd)
         self.commit()
         return True
 
-    def add_inventory(self, itemname, quantity):
-        count = self.count("Inventory")+1
+    def add_inventory(self, inventoryname, quantity):
         sql_cmd = """
-                INSERT INTO Inventory
-                VALUES({id}, '{itemname}', {quantity})
-            """.format(id=count,itemname=itemname, quantity=quantity)
+                INSERT INTO Inventory(inventoryname, quantity)
+                VALUES({id}, '{inventoryname}', {quantity})
+            """.format(inventoryname=inventoryname, quantity=quantity)
             
         self.execute(sql_cmd)
         self.commit()
@@ -116,20 +128,40 @@ class SQLDatabase():
 
     def select_all_users(self):
         sql_query = """
-                SELECT *
+                SELECT user_id, password, admin
                 FROM Users
+                ORDER BY user_id
             """
+        result = []
         self.execute(sql_query)
-        return self.cur.fetchall()
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
 
     def select_all_inventories(self):
         sql_query = """
-                SELECT inventory_id, itemname, quantity
+                SELECT inventory_id, inventoryname, quantity
                 FROM Inventory
                 ORDER BY inventory_id
             """
         # self.execute(sql_query)
         ## Returning things in JSON format
+        result = []
+        self.execute(sql_query)
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
+
+    def select_inventory(self, inventory_id):
+        sql_query = """
+                SELECT inventory_id, inventoryname, quantity
+                FROM Inventory
+                Where inventory_id = {inventory_id}
+            """.format(inventory_id=inventory_id)
         result = []
         self.execute(sql_query)
         cols = [a[0] for a in self.cur.description]

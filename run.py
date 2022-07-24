@@ -65,6 +65,9 @@ def logout():
 
 @app.route('/inventories')
 def list_inventories():
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('/login'))
+
     page['title'] = 'List Inventories'
 
     allinventories = None
@@ -74,7 +77,6 @@ def list_inventories():
     if allinventories == None:
         allinventories = []
 
-    print(allinventories)
     return render_template("listitems/listinventories.html",
                             session=session,
                             page=page,
@@ -83,12 +85,27 @@ def list_inventories():
 
 @app.route('/inventory/create')
 def add_inventory():
-    return "Creat a new inventory"
+    return "Create a new inventory"
 
 @app.route('/inventory/<inventory_id>')
 def single_inventory(inventory_id):
-    return "single_inventory"
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('/login'))
 
+    page['title'] = 'Inventory'
+
+    inventory = None
+    inventory = myDatabase.select_inventory(inventory_id)
+
+    if inventory == None:
+        inventory = []
+
+    print(inventory)
+    return render_template('singleitems/inventory.html',
+                            session=session,
+                            page=page,
+                            user=user_details,
+                            inventory=inventory)
 
 if __name__ == '__main__':
     app.run(debug=True)
