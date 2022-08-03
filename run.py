@@ -10,7 +10,7 @@ myDatabase = database.SQLDatabase()
 myDatabase.database_setup()
 myDatabase.add_users('kanday', 'bos123', 1)
 
-myDatabase.add_inventory("Nevada", 120)
+myDatabase.add_inventory("Nevada", 120, 5)
 
 app = Flask(__name__)
 app.secret_key = """U29tZWJvZHkgb25jZSB0b2xkIG1lIFRoZSB3b3JsZCBpcyBnb25uYSBy
@@ -92,7 +92,7 @@ def add_inventory():
     if('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('login'))
 
-    page['title'] = 'Movie Creation'
+    page['title'] = 'Inventory creation'
 
     movies = None
     print("request form is:")
@@ -144,7 +144,6 @@ def add_inventory():
 
         #forward to the database to manage insert
         # movies = database.add_movie_to_db(newdict['movie_title'],newdict['release_year'],newdict['description'],newdict['storage_location'],newdict['film_genre'])
-
 
         max_movie_id = database.get_last_movie()[0]['movie_id']
         print(movies)

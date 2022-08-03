@@ -13,7 +13,7 @@
           <tr>
             <td>Product ID</td>
             <td>Product Name</td>
-            <td>Quantity</td>
+            <td>Total Quantity</td>
           </tr>
         </thead>
         <tbody>
@@ -25,7 +25,9 @@
           >
             <td style="text-align: center">{{ instance.inventory_id }}</td>
             <td>{{ instance.inventoryname }}</td>
-            <td>{{ instance.quantity }}</td>
+            <td>
+              {{ instance.quantity_karton }} + {{ instance.quantity_gross }}
+            </td>
           </tr>
           {% endfor %}
         </tbody>

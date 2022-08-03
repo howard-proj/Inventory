@@ -62,7 +62,8 @@ class SQLDatabase():
         self.execute("""CREATE TABLE Inventory(
             inventory_id INTEGER PRIMARY KEY AUTOINCREMENT,
             inventoryname TEXT,
-            quantity INT)
+            quantity_karton INT,
+            quantity_gross INT)
         """)
         self.commit()
 
@@ -94,11 +95,11 @@ class SQLDatabase():
         self.commit()
         return True
 
-    def add_inventory(self, inventoryname, quantity):
+    def add_inventory(self, inventoryname, quantity_karton, quantity_gross):
         sql_cmd = """
-                INSERT INTO Inventory(inventoryname, quantity)
-                VALUES('{inventoryname}', {quantity})
-            """.format(inventoryname=inventoryname, quantity=quantity)
+                INSERT INTO Inventory(inventoryname, quantity_karton, quantity_gross)
+                VALUES('{inventoryname}', {quantity_karton}, {quantity_gross})
+            """.format(inventoryname=inventoryname, quantity_karton=quantity_karton, quantity_gross=quantity_gross)
             
         self.execute(sql_cmd)
         self.commit()
@@ -122,7 +123,7 @@ class SQLDatabase():
 
     def select_all_inventories(self):
         sql_query = """
-                SELECT inventory_id, inventoryname, quantity
+                SELECT inventory_id, inventoryname, quantity_karton, quantity_gross
                 FROM Inventory
                 ORDER BY inventory_id
             """
@@ -138,7 +139,7 @@ class SQLDatabase():
 
     def select_inventory(self, inventory_id):
         sql_query = """
-                SELECT inventory_id, inventoryname, quantity
+                SELECT inventory_id, inventoryname, quantity_karton, quantity_gross
                 FROM Inventory
                 Where inventory_id = {inventory_id}
             """.format(inventory_id=inventory_id)
