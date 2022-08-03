@@ -2,13 +2,13 @@
 <div class="content">
     <div class="container details"></div>
 
-        <h2 class="title"> Add Inventory </h2>
+        <h2 class="title"> Edit Inventory </h2>
 
-        <form class="login" method="POST" action="{{url_for('add_inventory')}}">
+        <form class="login" method="POST" action="{{ url_for('edit', inventory_id=inventory[0].inventory_id) }}">
 
-            Inventory Name: <input type="text" name="inventoryname" value="" placeholder="Barang" autofocus>
+            Inventory Name: <input type="text" name="inventoryname" value="{{ inventory[0].inventoryname }}" placeholder="Barang" autofocus required>
             <br/>
-            Quantity: <input type="number" name="quantity" value="0" placeholder="Total Stock" autofocus>
+            Quantity: <input type="number" name="quantity" value="{{ inventory[0].quantity }}" placeholder="Total Stock" autofocus required>
             <br/>
             Unit: 
             <select name="description">
@@ -18,7 +18,7 @@
                 <option value="pack">Pack</option>
             </select>
             <br/>
-            <button class="flat" type="submit">Add</button>
+            <button class="flat" type="submit">Edit</button>
             <br/>
             
         </form>

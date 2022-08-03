@@ -10,20 +10,20 @@ myDatabase = database.SQLDatabase()
 myDatabase.database_setup()
 myDatabase.add_users('kanday', 'bos123', 1)
 
-myDatabase.add_inventory("Nevada", 2, "Karton")
-myDatabase.add_inventory("JK-100", 3, "Karton")
-myDatabase.add_inventory("GPR263", 3, "Karton")
-myDatabase.add_inventory("Label Jerry", 1, "Gross")
-myDatabase.add_inventory("TD-103", 4, "Pcs")
-myDatabase.add_inventory("12mm Biru", 7, "Karton")
-myDatabase.add_inventory("12mm Merah", 1, "Karton")
-myDatabase.add_inventory("Gunting Kecil Emigo", 0, "Karton")
-myDatabase.add_inventory("Gunting Besar Emigo", 0, "Karton")
-myDatabase.add_inventory("Lakban Merah Bening", 5, "Karton")
-myDatabase.add_inventory("Lakban Biru Bening", 5, "Karton")
-myDatabase.add_inventory("24mm Biru", 8, "Karton")
-myDatabase.add_inventory("24mm Merah", 7, "Karton")
-myDatabase.add_inventory("Frixion 0.5 Hitam", 6, "Gross")
+# myDatabase.add_inventory("Nevada", 2, "Karton")
+# myDatabase.add_inventory("JK-100", 3, "Karton")
+# myDatabase.add_inventory("GPR263", 3, "Karton")
+# myDatabase.add_inventory("Label Jerry", 1, "Gross")
+# myDatabase.add_inventory("TD-103", 4, "Pcs")
+# myDatabase.add_inventory("12mm Biru", 7, "Karton")
+# myDatabase.add_inventory("12mm Merah", 1, "Karton")
+# myDatabase.add_inventory("Gunting Kecil Emigo", 0, "Karton")
+# myDatabase.add_inventory("Gunting Besar Emigo", 0, "Karton")
+# myDatabase.add_inventory("Lakban Merah Bening", 5, "Karton")
+# myDatabase.add_inventory("Lakban Biru Bening", 5, "Karton")
+# myDatabase.add_inventory("24mm Biru", 8, "Karton")
+# myDatabase.add_inventory("24mm Merah", 7, "Karton")
+# myDatabase.add_inventory("Frixion 0.5 Hitam", 6, "Gross")
 
 app = Flask(__name__)
 app.secret_key = """U29tZWJvZHkgb25jZSB0b2xkIG1lIFRoZSB3b3JsZCBpcyBnb25uYSBy
@@ -107,7 +107,6 @@ def add_inventory():
 
     page['title'] = 'Inventory creation'
 
-    movies = None
     print("request form is:")
     newdict = {}
     print(request.form)
@@ -148,6 +147,7 @@ def add_inventory():
         #forward to the database to manage insert
         myDatabase.add_inventory(newdict['inventoryname'],newdict['quantity'],newdict['description'])
 
+        page['bar'] = True
         flash("Added Item Successfully")
 
         # ideally this would redirect to your newly added movie
@@ -178,6 +178,60 @@ def single_inventory(inventory_id):
                             page=page,
                             user=user_details,
                             inventory=inventory)
+
+@app.route('/inventory/<inventory_id>/edit', methods=['POST', 'GET'])
+def edit(inventory_id):
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('/login'))
+
+    page['title'] = 'Inventory edit'
+
+    print("request form is:")
+    newdict = {}
+    print(request.form)
+
+     # Check your incoming parameters
+    if(request.method == 'POST'):
+
+        # verify that the values are available:
+        if ('inventoryname' not in request.form):
+            newdict['inventoryname'] = 'Empty Inventory Name'
+        else:
+            newdict['inventoryname'] = request.form['inventoryname']
+            # print("We have a value: ",newdict['inventoryname'])
+        
+        if ('quantity' not in request.form):
+            newdict['quantity'] = 'Empty quantity'
+        else:
+            newdict['quantity'] = request.form['quantity']
+            # print("We have a value: ",newdict['quantity'])
+
+        if ('description' not in request.form):
+            newdict['description'] = 'Empty description/unit field'
+        else:
+            newdict['description'] = request.form['description']
+
+        #Update the database here
+        myDatabase.update_inventory(inventory_id, newdict['inventoryname'], newdict['quantity'], newdict['description'])
+
+        page['bar'] = True
+        flash("Updated Successfully")
+
+        return redirect(url_for('list_inventories'))
+
+    else:
+        inventory = None
+        inventory = myDatabase.select_inventory(inventory_id)
+
+        if inventory == None:
+            inventory = []
+
+        print(inventory)
+        return render_template('edit.html',
+                                session=session,
+                                page=page,
+                                user=user_details,
+                                inventory=inventory)
 
 if __name__ == '__main__':
     app.run(debug=True)

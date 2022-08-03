@@ -67,8 +67,23 @@ class SQLDatabase():
         """)
         self.commit()
 
-
-
+        self.execute("""
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Nevada', 2, 'Karton');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Jk-100', 3, 'Karton');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('GPR263', 3, 'Karton');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Label Jerry 99', 2, 'Gross');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('TD-103', 4, 'Gross');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Gunting Kecil Emigo', 2, 'Gross');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Gunting Besar Emigo', 2, 'Gross');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm merah', 3, 'Karton');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm biru', 5, 'Karton');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Bening Merah', 2, 'Karton');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Coklat Merah', 3, 'Karton');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Merah', 3, 'Karton');
+            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Biru', 5, 'Karton');
+        """)
+        self.commit()
+        
     def check_credentials(self, username, password):
         sql_query = """
                 SELECT username, password
@@ -101,6 +116,16 @@ class SQLDatabase():
                 VALUES('{inventoryname}', {quantity}, '{description}')
             """.format(inventoryname=inventoryname, quantity=quantity, description=description)
             
+        self.execute(sql_cmd)
+        self.commit()
+        return True
+    
+    def update_inventory(self, inventory_id, inventoryname, quantity, description):
+        sql_cmd = """
+                UPDATE Inventory
+                SET inventoryname = '{inventoryname}', quantity = {quantity}, description = '{description}'
+                WHERE inventory_id = {inventory_id}
+            """.format(inventory_id=inventory_id, inventoryname=inventoryname, quantity=quantity, description=description)
         self.execute(sql_cmd)
         self.commit()
         return True
