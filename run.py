@@ -10,7 +10,20 @@ myDatabase = database.SQLDatabase()
 myDatabase.database_setup()
 myDatabase.add_users('kanday', 'bos123', 1)
 
-myDatabase.add_inventory("Nevada", 120, 5)
+myDatabase.add_inventory("Nevada", 2, "Karton")
+myDatabase.add_inventory("JK-100", 3, "Karton")
+myDatabase.add_inventory("GPR263", 3, "Karton")
+myDatabase.add_inventory("Label Jerry", 1, "Gross")
+myDatabase.add_inventory("TD-103", 4, "Pcs")
+myDatabase.add_inventory("12mm Biru", 7, "Karton")
+myDatabase.add_inventory("12mm Merah", 1, "Karton")
+myDatabase.add_inventory("Gunting Kecil Emigo", 0, "Karton")
+myDatabase.add_inventory("Gunting Besar Emigo", 0, "Karton")
+myDatabase.add_inventory("Lakban Merah Bening", 5, "Karton")
+myDatabase.add_inventory("Lakban Biru Bening", 5, "Karton")
+myDatabase.add_inventory("24mm Biru", 8, "Karton")
+myDatabase.add_inventory("24mm Merah", 7, "Karton")
+myDatabase.add_inventory("Frixion 0.5 Hitam", 6, "Gross")
 
 app = Flask(__name__)
 app.secret_key = """U29tZWJvZHkgb25jZSB0b2xkIG1lIFRoZSB3b3JsZCBpcyBnb25uYSBy
@@ -103,55 +116,42 @@ def add_inventory():
     if(request.method == 'POST'):
 
         # verify that the values are available:
-        if ('movie_title' not in request.form):
-            newdict['movie_title'] = 'Empty Film Value'
+        if ('inventoryname' not in request.form):
+            newdict['inventoryname'] = 'Empty Inventory Name'
         else:
-            newdict['movie_title'] = request.form['movie_title']
-            print("We have a value: ",newdict['movie_title'])
-
-        if ('release_year' not in request.form):
-            newdict['release_year'] = '0'
+            newdict['inventoryname'] = request.form['inventoryname']
+            # print("We have a value: ",newdict['inventoryname'])
+        
+        if ('quantity' not in request.form):
+            newdict['quantity'] = 'Empty quantity'
         else:
-            newdict['release_year'] = request.form['release_year']
-            print("We have a value: ",newdict['release_year'])
+            newdict['quantity'] = request.form['quantity']
+            # print("We have a value: ",newdict['quantity'])
 
         if ('description' not in request.form):
-            newdict['description'] = 'Empty description field'
+            newdict['description'] = 'Empty description/unit field'
         else:
             newdict['description'] = request.form['description']
-            print("We have a value: ",newdict['description'])
+            # print("We have a value: ",newdict['description'])
 
-        if ('storage_location' not in request.form):
-            newdict['storage_location'] = 'Empty storage location'
-        else:
-            newdict['storage_location'] = request.form['storage_location']
-            print("We have a value: ",newdict['storage_location'])
 
-        if ('film_genre' not in request.form):
-            newdict['film_genre'] = 'drama'
-        else:
-            newdict['film_genre'] = request.form['film_genre']
-            print("We have a value: ",newdict['film_genre'])
-
-        if ('artwork' not in request.form):
-            newdict['artwork'] = 'https://user-images.githubusercontent.com/24848110/33519396-7e56363c-d79d-11e7-969b-09782f5ccbab.png'
-        else:
-            newdict['artwork'] = request.form['artwork']
-            print("We have a value: ",newdict['artwork'])
+        # if ('artwork' not in request.form):
+        #     newdict['artwork'] = 'https://user-images.githubusercontent.com/24848110/33519396-7e56363c-d79d-11e7-969b-09782f5ccbab.png'
+        # else:
+        #     newdict['artwork'] = request.form['artwork']
+        #     print("We have a value: ",newdict['artwork'])
+        
         
         print('newdict is:')
         print(newdict)
 
         #forward to the database to manage insert
-        # movies = database.add_movie_to_db(newdict['movie_title'],newdict['release_year'],newdict['description'],newdict['storage_location'],newdict['film_genre'])
+        myDatabase.add_inventory(newdict['inventoryname'],newdict['quantity'],newdict['description'])
 
-        max_movie_id = database.get_last_movie()[0]['movie_id']
-        print(movies)
-        if movies is not None:
-            max_movie_id = movies[0]
+        flash("Added Item Successfully")
 
         # ideally this would redirect to your newly added movie
-        return single_movie(max_movie_id)
+        return redirect(url_for('list_inventories'))
     else:
         return render_template('createitems/createinventory.html',
                            session=session,

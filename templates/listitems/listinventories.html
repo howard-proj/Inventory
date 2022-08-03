@@ -14,20 +14,21 @@
             <td>Product ID</td>
             <td>Product Name</td>
             <td>Total Quantity</td>
+            <td>Unit</td>
           </tr>
         </thead>
         <tbody>
           {% for instance in allinventories %}
           <!-- Each row is a link to each individual inventory page -->
-          <tr
-            class="clickable-tr"
-            data-href="{{ url_for('single_inventory', inventory_id=instance.inventory_id)}}"
-          >
+          {% if instance.quantity <= 2 %}
+          <tr bgcolor="lightcoral" class="clickable-tr" data-href="{{ url_for('single_inventory', inventory_id=instance.inventory_id)}}" >
+          {% else %}
+          <tr class="clickable-tr" data-href="{{ url_for('single_inventory', inventory_id=instance.inventory_id)}}" >
+          {% endif %}
             <td style="text-align: center">{{ instance.inventory_id }}</td>
             <td>{{ instance.inventoryname }}</td>
-            <td>
-              {{ instance.quantity_karton }} + {{ instance.quantity_gross }}
-            </td>
+            <td>{{ instance.quantity }} </td>
+            <td>{{ instance.description }}</td>
           </tr>
           {% endfor %}
         </tbody>
