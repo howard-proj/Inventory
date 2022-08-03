@@ -49,45 +49,24 @@ class SQLDatabase():
         self.commit()
         self.execute("DROP TABLE IF EXISTS Inventory")
         self.commit()
-        self.execute("DROP TABLE IF EXISTS MetaDataType")
-        self.commit()
-        self.execute("DROP TABLE IF EXISTS MetaData")
-        self.commit()
 
         # Create the users table
         self.execute("""CREATE TABLE Users(
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT,
             password TEXT,
-            admin INTEGER DEFAULT 0);
+            admin INTEGER DEFAULT 0)
         """)
         self.commit()
 
         self.execute("""CREATE TABLE Inventory(
-            inventory_id INTEGER PRIMARY KEY REFERENCES Stationery(stationery_id),
+            inventory_id INTEGER PRIMARY KEY AUTOINCREMENT,
             inventoryname TEXT,
-            quantity INT);
+            quantity INT)
         """)
         self.commit()
 
-        self.execute("""CREATE Table MetaDataType(
-            md_type_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            md_type_name VARCHAR (100) NOT NULL);
-        """)
-        self.commit()
 
-        self.execute(""""CREATE TABLE MetaData(
-            md_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            md_type_id INTEGER REFERENCES MetaDataType(md_type_id) NOT NULL,
-            md_value text NOT NULL);
-        """)
-        self.commit()
-
-        self.execute("""CREATE TABLE Stationery(
-            stationery_id INTEGER NOT NULL,
-            FOREIGN KEY ()
-        )
-        """)
 
     def check_credentials(self, username, password):
         sql_query = """
@@ -118,7 +97,7 @@ class SQLDatabase():
     def add_inventory(self, inventoryname, quantity):
         sql_cmd = """
                 INSERT INTO Inventory(inventoryname, quantity)
-                VALUES({id}, '{inventoryname}', {quantity})
+                VALUES('{inventoryname}', {quantity})
             """.format(inventoryname=inventoryname, quantity=quantity)
             
         self.execute(sql_cmd)
@@ -128,10 +107,11 @@ class SQLDatabase():
 
     def select_all_users(self):
         sql_query = """
-                SELECT user_id, password, admin
+                SELECT user_id, username, password, admin
                 FROM Users
                 ORDER BY user_id
             """
+        ## Returning in JSON format
         result = []
         self.execute(sql_query)
         cols = [a[0] for a in self.cur.description]
@@ -171,13 +151,11 @@ class SQLDatabase():
         return result
 
     
-
-        
-
 # myDatabase = SQLDatabase()
 # myDatabase.database_setup()
 # myDatabase.add_users('kanday', 'bos123', 1)
 
 # myDatabase.add_inventory("Nevada", 120)
 
+# print(myDatabase.select_inventory(1))
 # print(myDatabase.select_all_users())

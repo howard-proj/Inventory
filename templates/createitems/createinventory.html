@@ -1,0 +1,26 @@
+{% include 'top.html' %}
+<div class="content">
+    <div class="container details">
+
+        <h2 class="title"> Add Inventory </h2>
+
+        <form class="Add" method="POST" action="{{url_for('add_inventory')}}">
+
+            Inventory Name <input type="text" name="inventory_name" value="" placeholder="Inventory name">
+            <br/>
+            Quantity: <input type="number" name="quantity" value="0" placeholder="Stock in Karton">
+
+            <br/>
+            <button class="flat" type="submit">Add</button>
+            <br/>
+            <hr/>
+            <hr/>
+            <hr/>
+            
+        </form>
+        <br/>
+        <div>
+
+    </div>
+</div>
+{% include 'bottom.html'%}

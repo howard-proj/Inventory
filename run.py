@@ -83,10 +83,83 @@ def list_inventories():
                             user=user_details,
                             allinventories=allinventories)
 
-@app.route('/inventory/create')
+@app.route('/inventory/create', methods=["POST", "GET"])
 def add_inventory():
-    return "Create a new inventory"
+    """
+    Add a new movie
+    """
+    # # Check if the user is logged in, if not: back to login.
+    if('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('login'))
 
+    page['title'] = 'Movie Creation'
+
+    movies = None
+    print("request form is:")
+    newdict = {}
+    print(request.form)
+
+    # Check your incoming parameters
+    if(request.method == 'POST'):
+
+        # verify that the values are available:
+        if ('movie_title' not in request.form):
+            newdict['movie_title'] = 'Empty Film Value'
+        else:
+            newdict['movie_title'] = request.form['movie_title']
+            print("We have a value: ",newdict['movie_title'])
+
+        if ('release_year' not in request.form):
+            newdict['release_year'] = '0'
+        else:
+            newdict['release_year'] = request.form['release_year']
+            print("We have a value: ",newdict['release_year'])
+
+        if ('description' not in request.form):
+            newdict['description'] = 'Empty description field'
+        else:
+            newdict['description'] = request.form['description']
+            print("We have a value: ",newdict['description'])
+
+        if ('storage_location' not in request.form):
+            newdict['storage_location'] = 'Empty storage location'
+        else:
+            newdict['storage_location'] = request.form['storage_location']
+            print("We have a value: ",newdict['storage_location'])
+
+        if ('film_genre' not in request.form):
+            newdict['film_genre'] = 'drama'
+        else:
+            newdict['film_genre'] = request.form['film_genre']
+            print("We have a value: ",newdict['film_genre'])
+
+        if ('artwork' not in request.form):
+            newdict['artwork'] = 'https://user-images.githubusercontent.com/24848110/33519396-7e56363c-d79d-11e7-969b-09782f5ccbab.png'
+        else:
+            newdict['artwork'] = request.form['artwork']
+            print("We have a value: ",newdict['artwork'])
+        
+        print('newdict is:')
+        print(newdict)
+
+        #forward to the database to manage insert
+        # movies = database.add_movie_to_db(newdict['movie_title'],newdict['release_year'],newdict['description'],newdict['storage_location'],newdict['film_genre'])
+
+
+        max_movie_id = database.get_last_movie()[0]['movie_id']
+        print(movies)
+        if movies is not None:
+            max_movie_id = movies[0]
+
+        # ideally this would redirect to your newly added movie
+        return single_movie(max_movie_id)
+    else:
+        return render_template('createitems/createinventory.html',
+                           session=session,
+                           page=page,
+                           user=user_details)
+
+                        
 @app.route('/inventory/<inventory_id>')
 def single_inventory(inventory_id):
     if ('logged_in' not in session or not session['logged_in']):

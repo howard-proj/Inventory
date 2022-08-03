@@ -1,34 +1,34 @@
 {% include 'top.html' %}
 <div class="content">
-    <div class="container details">
-        <h1 class="title"> Welcome, {{ user['username'] }}</h1>
-        <hr/>
-        <div>
-            <h2 class="containertitle"> Your most recent viewed items</h2>
-            <!-- User currently viewing -->
-            <table class="styled">
-                    <thead>
-                        <tr>
-                            <td>Media ID</td>
-                            <td>Playcount</td>
-                            <td>Progress</td>
-                            <td>Lastviewed</td>
-                            <td>Storage Location</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for instance in usercurrent %}
-                        <tr>
-                            <td style="text-align: center">{{ instance.media_id }}</td>
-                            <td>{{ instance.playcount }}</td>
-                            <td>{{ instance.progress }}</td>
-                            <td>{{ instance.lastviewed }}</td>
-                            <td>{{ instance.storage_location }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-            </table>
-        </div>
+  <div class="container details">
+    <h1 class="title">Welcome, {{ user['username'] }}</h1>
+    <hr />
+    <div>
+      <h2 class="containertitle">Your most recent viewed items</h2>
+      <!-- User currently viewing -->
+      <table class="styled">
+        <thead>
+          <tr>
+            <td>Media ID</td>
+            <td>Playcount</td>
+            <td>Progress</td>
+            <td>Lastviewed</td>
+            <td>Storage Location</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for instance in usercurrent %}
+          <tr>
+            <td style="text-align: center">{{ instance.media_id }}</td>
+            <td>{{ instance.playcount }}</td>
+            <td>{{ instance.progress }}</td>
+            <td>{{ instance.lastviewed }}</td>
+            <td>{{ instance.storage_location }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 </div>
 {% include 'bottom.html'%}
