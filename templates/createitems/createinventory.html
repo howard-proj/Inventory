@@ -4,7 +4,7 @@
 
         <h2 class="title"> Add Inventory </h2>
 
-        <form class="login" method="POST" action="{{url_for('add_inventory')}}">
+        <form class="login" method="POST" action="{{url_for('add_inventory')}}" enctype="multipart/form-data">
 
             Inventory Name: <input type="text" name="inventoryname" value="" placeholder="Barang" autofocus>
             <br/>
@@ -12,11 +12,17 @@
             <br/>
             Unit: 
             <select name="description">
-                <option value="lusin">Lusin</option>
                 <option value="karton">Karton</option>
+                <option value="lusin">Lusin</option>
                 <option value="pcs">Pcs</option>
                 <option value="pack">Pack</option>
             </select>
+            <br/>
+
+            <br/>
+            <br/>
+
+            Picture: <input type="file" name="picture" autofocus>
             <br/>
             <button class="flat" type="submit">Add</button>
             <br/>

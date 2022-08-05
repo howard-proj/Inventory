@@ -49,6 +49,8 @@ class SQLDatabase():
         self.commit()
         self.execute("DROP TABLE IF EXISTS Inventory")
         self.commit()
+        self.execute("DROP TABLE IF EXISTS Images")
+        self.commit()
 
         # Create the users table
         self.execute("""CREATE TABLE Users(
@@ -67,26 +69,49 @@ class SQLDatabase():
         """)
         self.commit()
 
+        self.execute("""CREATE TABLE Images(
+            image_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            inventory_id INTEGER REFERENCES Inventory(inventory_id) NOT NULL,
+            filename TEXT)
+        """)
+
         self.execute("""
+            INSERT INTO Users(username, password, admin) VALUES('kanday', 'bos123', 1);
+            INSERT INTO Users(username, password, admin) VALUES('biasa', 'bisa123', 0);
+
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Nevada', 2, 'Karton');
+            INSERT INTO Images(inventory_id, filename) VALUES(1, 'nevada.png');
+
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Jk-100', 3, 'Karton');
+            INSERT INTO Images(inventory_id, filename) VALUES(2, 'jk-100.png');
+
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('GPR263', 3, 'Karton');
+            INSERT INTO Images(inventory_id, filename) VALUES(3, 'gpr263.png');
+
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Label Jerry 99', 2, 'Gross');
+            INSERT INTO Images(inventory_id, filename) VALUES(4, 'label-jerry.png');
+
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('TD-103', 4, 'Gross');
+            INSERT INTO Images(inventory_id, filename) VALUES(5, 'td-103.png');
+
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Gunting Kecil Emigo', 2, 'Gross');
+            INSERT INTO Images(inventory_id, filename) VALUES(6, 'gunting-kecil.png');
+
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Gunting Besar Emigo', 2, 'Gross');
-            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm merah', 3, 'Karton');
-            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm biru', 5, 'Karton');
-            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Bening Merah', 2, 'Karton');
-            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Coklat Merah', 3, 'Karton');
-            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Merah', 3, 'Karton');
-            INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Biru', 5, 'Karton');
+            INSERT INTO Images(inventory_id, filename) VALUES(7, 'gunting-besar.png');
         """)
         self.commit()
+
+        # INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm merah', 3, 'Karton');
+        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm biru', 5, 'Karton');
+        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Bening Merah', 2, 'Karton');
+        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Coklat Merah', 3, 'Karton');
+        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Merah', 3, 'Karton');
+        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Biru', 5, 'Karton');
         
     def check_credentials(self, username, password):
         sql_query = """
-                SELECT username, password
+                SELECT username, password, admin
                 FROM Users
                 WHERE username = '{username}' AND password = '{password}'
             """.format(username=username, password=password)
@@ -103,21 +128,38 @@ class SQLDatabase():
     def add_users(self, username, password, admin=0):
         sql_cmd = """
                 INSERT INTO Users(username, password, admin)
-                VALUES('{username}', '{password}', {admin})
+                VALUES('{username}', '{password}', {admin});
             """.format(username=username, password=password, admin=admin)
 
         self.execute(sql_cmd)
         self.commit()
         return True
 
-    def add_inventory(self, inventoryname, quantity, description):
+    def add_inventory(self, inventoryname, quantity, description, filename='notfound.png'):
+        # Equivalent to following query:
+        # WITH ins1 AS (
+        #     INSERT INTO Inventory(inventoryname, quantity, description)
+        #     VALUES({inventoryname}, {quantity}, {description})
+        #     RETURNING inventory_id
+        # )
+        # INSERT INTO Images(inventory_id, {filename})
+        # SELECT inventory_id FROM ins1;
+        #
+        # Note: Sqlite3 does not support INSERT subquery
         sql_cmd = """
-                INSERT INTO Inventory(inventoryname, quantity, description)
-                VALUES('{inventoryname}', {quantity}, '{description}')
+            INSERT INTO Inventory(inventoryname, quantity, description)
+            VALUES('{inventoryname}', {quantity}, '{description}')
             """.format(inventoryname=inventoryname, quantity=quantity, description=description)
-            
+        self.execute(sql_cmd)
+
+        last_id = self.cur.lastrowid
+        sql_cmd = """
+            INSERT INTO Images(inventory_id, filename)
+            VALUES({last_id}, '{filename}')
+        """.format(last_id=last_id, filename=filename)
         self.execute(sql_cmd)
         self.commit()
+
         return True
     
     def update_inventory(self, inventory_id, inventoryname, quantity, description):
@@ -130,6 +172,20 @@ class SQLDatabase():
         self.commit()
         return True
 
+    def select_all_images(self):
+        sql_query = """
+                SELECT image_id, inventory_id, filename
+                FROM Images
+                ORDER BY image_id
+            """
+        ## Returning in JSON format
+        result = []
+        self.execute(sql_query)
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
 
     def select_all_users(self):
         sql_query = """
@@ -148,11 +204,11 @@ class SQLDatabase():
 
     def select_all_inventories(self):
         sql_query = """
-                SELECT inventory_id, inventoryname, quantity, description
-                FROM Inventory
-                ORDER BY inventory_id
+                SELECT inv.inventory_id, inv.inventoryname, inv.quantity, inv.description, im.filename
+                FROM Inventory inv INNER JOIN Images im
+                ON inv.inventory_id = im.inventory_id
+                ORDER BY inv.inventory_id
             """
-        # self.execute(sql_query)
         ## Returning things in JSON format
         result = []
         self.execute(sql_query)
@@ -164,10 +220,12 @@ class SQLDatabase():
 
     def select_inventory(self, inventory_id):
         sql_query = """
-                SELECT inventory_id, inventoryname, quantity, description
-                FROM Inventory
-                Where inventory_id = {inventory_id}
+                SELECT inv.inventory_id, inv.inventoryname, inv.quantity, inv.description, im.filename
+                FROM Inventory inv INNER JOIN Images im 
+                ON inv.inventory_id = im.inventory_id
+                Where inv.inventory_id = {inventory_id}
             """.format(inventory_id=inventory_id)
+        ## Returning things in JSON format
         result = []
         self.execute(sql_query)
         cols = [a[0] for a in self.cur.description]
@@ -179,9 +237,10 @@ class SQLDatabase():
     
 # myDatabase = SQLDatabase()
 # myDatabase.database_setup()
-# myDatabase.add_users('kanday', 'bos123', 1)
-
-# myDatabase.add_inventory("Nevada", 120)
+# myDatabase.add_users("Kanday", "bos123", 1)
+# myDatabase.add_inventory("Nevada", 120, "Lusin")
+# print(myDatabase.select_all_inventories()[7])
+# print(myDatabase.select_all_images()[7])
 
 # print(myDatabase.select_inventory(1))
 # print(myDatabase.select_all_users())
