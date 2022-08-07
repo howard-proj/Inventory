@@ -3,6 +3,7 @@ from flask import Flask, redirect, render_template, flash, url_for, request
 import urllib.request
 import os
 from werkzeug.utils import secure_filename
+from datetime import datetime
 # from modules import *
 
 user_details = {}
@@ -11,7 +12,6 @@ page = {}
 
 myDatabase = database.SQLDatabase()
 myDatabase.database_setup()
-myDatabase.add_users('kanday', 'bos123', 1)
 
 
 app = Flask(__name__)
@@ -36,7 +36,6 @@ def login():
             request.form['password']
         )
         # 1) error case
-        
         if login_data is False:
             page['bar'] = False
             flash("Incorrect username/password, please try again")
@@ -59,11 +58,21 @@ def login():
 def home():
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('login'))
+
+    page['title'] = 'User Page'
+
+    user_history = None
+    user_history = myDatabase.select_all_history()
+
+    if user_history == None:
+        user_history = []
+
     
     return render_template("home.html", 
                             page=page,
                             session=session,
-                            user=user_details)
+                            user=user_details,
+                            user_history=user_history)
 
 @app.route('/logout')
 def logout():
@@ -136,10 +145,19 @@ def add_inventory():
         else:
             newdict['picture'] = request.form['picture']
 
-        file = request.files['picture']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if request.files['picture'] is None:
+            print("ENTERED")
+            newdict['picture'] = 'notfound.png'
+        else:
+            print("ELSE ENTERED")
+            file = request.files['picture']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                newdict['picture'] = file.filename
+            else:
+                newdict['picture'] = 'notfound.png'
+
         
         print('newdict is:')
         print(newdict)
@@ -216,6 +234,26 @@ def edit(inventory_id):
             newdict['description'] = 'Empty description/unit field'
         else:
             newdict['description'] = request.form['description']
+
+        # Check if the edit added or subtracted our inventory
+        item = myDatabase.select_inventory(inventory_id)
+        quantity_before = int(item[0]['quantity'])
+        quantity_now = int(newdict['quantity'])
+
+        current_total = quantity_now - quantity_before
+        print(user_details)
+        # if there is no change, do nothing
+        if (current_total == 0):
+            pass
+        else:
+            # case 1: subtraction of inventory
+            time_now = datetime.now()
+            if (current_total < 0):
+                myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%d/%m/%Y %H:%M:%S"))
+
+            # case 2: addition of inventory
+            elif (current_total > 0):
+                myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%d/%m/%Y %H:%M:%S"))
 
         #Update the database here
         myDatabase.update_inventory(inventory_id, newdict['inventoryname'], newdict['quantity'], newdict['description'])

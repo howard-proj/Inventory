@@ -1,5 +1,5 @@
 import sqlite3
-
+from datetime import datetime
 
 # This class is a simple handler for all of our SQL database actions
 # Practicing a good separation of concerns, we should only ever call
@@ -51,6 +51,8 @@ class SQLDatabase():
         self.commit()
         self.execute("DROP TABLE IF EXISTS Images")
         self.commit()
+        self.execute("DROP TABLE IF EXISTS History")
+        self.commit()
 
         # Create the users table
         self.execute("""CREATE TABLE Users(
@@ -74,7 +76,21 @@ class SQLDatabase():
             inventory_id INTEGER REFERENCES Inventory(inventory_id) NOT NULL,
             filename TEXT)
         """)
+        self.commit()
 
+        self.execute("""CREATE TABLE History(
+            history_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER REFERENCES Users(user_id) NOT NULL,
+            inventory_id INTEGER REFERENCES Inventory(inventory_id) NOT NULL,
+            stock_before INTEGER,
+            stock_after INTEGER,
+            stock_taken_supplied INTEGER,
+            lastviewed DATE NOT NULL
+        )
+        """)
+        self.commit()
+
+        now = datetime.now()
         self.execute("""
             INSERT INTO Users(username, password, admin) VALUES('kanday', 'bos123', 1);
             INSERT INTO Users(username, password, admin) VALUES('biasa', 'bisa123', 0);
@@ -99,7 +115,10 @@ class SQLDatabase():
 
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Gunting Besar Emigo', 2, 'Gross');
             INSERT INTO Images(inventory_id, filename) VALUES(7, 'gunting-besar.png');
-        """)
+
+            INSERT INTO History VALUES (1, 1, 1, 2, 1, -1, '{mytime}');
+
+        """.format(mytime=now.strftime("%d/%m/%Y %H:%M:%S")))
         self.commit()
 
         # INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm merah', 3, 'Karton');
@@ -108,10 +127,11 @@ class SQLDatabase():
         #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Coklat Merah', 3, 'Karton');
         #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Merah', 3, 'Karton');
         #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Biru', 5, 'Karton');
+        # myDatabase.add_to_history(1, 1, 2, 1, 1, now)
         
     def check_credentials(self, username, password):
         sql_query = """
-                SELECT username, password, admin
+                SELECT user_id, username, password, admin
                 FROM Users
                 WHERE username = '{username}' AND password = '{password}'
             """.format(username=username, password=password)
@@ -234,12 +254,46 @@ class SQLDatabase():
             result.append({a:b for a,b in zip(cols, row)})
         return result
 
-    
+    def select_all_history(self):
+        sql_query = """
+            SELECT inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
+            FROM (Inventory inv JOIN History his USING(inventory_id)) JOIN USERS user USING(user_id)
+        """
+        ## Returning things in JSON format
+        result = []
+        self.execute(sql_query)
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
+
+    def add_to_history(self, user_id, inventory_id, stock_before, stock_after, stock_taken_supplied, lastviewed):
+        sql_query = """
+            INSERT INTO History(user_id, inventory_id, stock_before, stock_after, stock_taken_supplied, lastviewed)
+            VALUES ({user_id}, {inventory_id}, {stock_before}, {stock_after}, {stock_taken_supplied}, '{lastviewed}')
+        """.format(user_id=user_id, inventory_id=inventory_id, stock_before=stock_before, stock_after=stock_after, 
+                    stock_taken_supplied=stock_taken_supplied,
+                    lastviewed=lastviewed)
+        print(sql_query)
+        self.execute(sql_query)
+        self.commit()
+        return True
+
+
+
+
 # myDatabase = SQLDatabase()
 # myDatabase.database_setup()
 # myDatabase.add_users("Kanday", "bos123", 1)
 # myDatabase.add_inventory("Nevada", 120, "Lusin")
-# print(myDatabase.select_all_inventories()[7])
+# Nevada_id = 1, before 2, taken 1, left 1
+# print(myDatabase.select_all_inventories())
+
+# myDatabase.add_to_history(1, 1, 2, 1, 1, now)
+# print(myDatabase.select_all_history())
+
+# print(myDatabase.select_all_inventories())
 # print(myDatabase.select_all_images()[7])
 
 # print(myDatabase.select_inventory(1))

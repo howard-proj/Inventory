@@ -4,26 +4,32 @@
     <h1 class="title">Welcome, {{ user['username'] }}</h1>
     <hr />
     <div>
-      <h2 class="containertitle">Your most recent viewed items</h2>
+      <h2 class="containertitle">Your most recent stocked items</h2>
       <!-- User currently viewing -->
       <table class="styled">
         <thead>
           <tr>
-            <td>Media ID</td>
-            <td>Playcount</td>
-            <td>Progress</td>
-            <td>Lastviewed</td>
-            <td>Storage Location</td>
-          </tr>
+            <td>Inventory</td>
+            <td>User</td>
+            <td>Total Before</td>
+            <td>Stock Taken Or Supplied</td>
+            <td>Total Sekarang</td>
+            <td>Last Updated</td>
+          </tr>    
         </thead>
         <tbody>
-          {% for instance in usercurrent %}
+          {% for instance in user_history %}
           <tr>
-            <td style="text-align: center">{{ instance.media_id }}</td>
-            <td>{{ instance.playcount }}</td>
-            <td>{{ instance.progress }}</td>
+            <td style="text-align: center">{{ instance.inventoryname }}</td>
+            <td>{{ instance.username }}</td>
+            <td>{{ instance.stock_before }}</td>
+            {% if instance.stock_taken_supplied < 0 %}
+            <td bgcolor="lightcoral">OUT {{ instance.stock_taken_supplied }}</td>
+            {% else %}
+            <td bgcolor="lightgreen">IN {{ instance.stock_taken_supplied }}</td>
+            {% endif %}
+            <td>{{ instance.stock_after }}</td>
             <td>{{ instance.lastviewed }}</td>
-            <td>{{ instance.storage_location }}</td>
           </tr>
           {% endfor %}
         </tbody>
