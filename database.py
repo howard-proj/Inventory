@@ -90,7 +90,6 @@ class SQLDatabase():
         """)
         self.commit()
 
-        now = datetime.now()
         self.execute("""
             INSERT INTO Users(username, password, admin) VALUES('kanday', 'bos123', 1);
             INSERT INTO Users(username, password, admin) VALUES('biasa', 'bisa123', 0);
@@ -115,10 +114,7 @@ class SQLDatabase():
 
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Gunting Besar Emigo', 2, 'Gross');
             INSERT INTO Images(inventory_id, filename) VALUES(7, 'gunting-besar.png');
-
-            INSERT INTO History VALUES (1, 1, 1, 2, 1, -1, '{mytime}');
-
-        """.format(mytime=now.strftime("%d/%m/%Y %H:%M:%S")))
+        """)
         self.commit()
 
         # INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm merah', 3, 'Karton');
@@ -141,8 +137,10 @@ class SQLDatabase():
         self.execute(sql_query)
         cols = [a[0] for a in self.cur.description]
         returning = self.cur.fetchone()
+        if returning is None:
+            return False
+            
         result.append({a:b for a,b in zip(cols, returning)})
-        
         return result
 
     def add_users(self, username, password, admin=0):
@@ -275,7 +273,34 @@ class SQLDatabase():
         """.format(user_id=user_id, inventory_id=inventory_id, stock_before=stock_before, stock_after=stock_after, 
                     stock_taken_supplied=stock_taken_supplied,
                     lastviewed=lastviewed)
-        print(sql_query)
+        self.execute(sql_query)
+        self.commit()
+        return True
+
+    def remove_history(self, history_id):
+        sql_query = """
+            DELETE FROM History
+            WHERE history_id = {history_id}
+        """.format(history_id=history_id)
+        self.execute(sql_query)
+        self.commit()
+        return True
+        
+
+    def remove_all_history(self):
+        sql_query = """
+            DELETE FROM History
+        """
+        self.execute(sql_query)
+        self.commit()
+        return True
+        
+
+    def remove_inventory(self,inventory_id):
+        sql_query = """
+            DELETE FROM Inventory
+            WHERE inventory_id = {inventory_id}
+        """.format(inventory_id=inventory_id)
         self.execute(sql_query)
         self.commit()
         return True

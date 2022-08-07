@@ -91,7 +91,6 @@ def list_inventories():
 
     allinventories = None
     allinventories = myDatabase.select_all_inventories()
-    print(allinventories)
 
     # checking for integrity only
     if allinventories == None:
@@ -108,15 +107,15 @@ def add_inventory():
     """
     Add a new movie
     """
-    # # Check if the user is logged in, if not: back to login.
+    # Check if the user is logged in, if not: back to login.
     if('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('login'))
 
     page['title'] = 'Inventory creation'
 
-    print("request form is:")
+    # print("request form is:")
     newdict = {}
-    print(request.form)
+    # print(request.form)
 
     # Check your incoming parameters
     if(request.method == 'POST'):
@@ -146,10 +145,8 @@ def add_inventory():
             newdict['picture'] = request.form['picture']
 
         if request.files['picture'] is None:
-            print("ENTERED")
             newdict['picture'] = 'notfound.png'
         else:
-            print("ELSE ENTERED")
             file = request.files['picture']
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
@@ -157,11 +154,6 @@ def add_inventory():
                 newdict['picture'] = file.filename
             else:
                 newdict['picture'] = 'notfound.png'
-
-        
-        print('newdict is:')
-        print(newdict)
-
 
         #forward to the database to manage insert
         myDatabase.add_inventory(newdict['inventoryname'],newdict['quantity'],newdict['description'],newdict['picture'])
@@ -270,12 +262,36 @@ def edit(inventory_id):
         if inventory == None:
             inventory = []
 
-        print(inventory)
         return render_template('edit.html',
                                 session=session,
                                 page=page,
                                 user=user_details,
                                 inventory=inventory)
+
+@app.route('/inventory/<inventory_id>/remove', methods=['GET', 'POST'])
+def remove_inventory(inventory_id):
+    if (request.method == 'POST'):
+        myDatabase.remove_inventory(inventory_id)
+
+        page['bar'] = True
+        flash("Updated Successfully")
+
+        return redirect(url_for('list_inventories'))
+
+    elif (request.method == 'GET'):
+        inventory = None
+        inventory = myDatabase.select_inventory(inventory_id)
+
+        if inventory == None:
+            inventory = []
+
+
+        return render_template('confirmation/delete.html',
+                                session=session,
+                                page=page,
+                                user=user_details,
+                                inventory=inventory)
+
 
 @app.route('/display/<filename>')
 def display_image(filename):

@@ -1,0 +1,24 @@
+{% include 'top.html' %}
+<div class="content">
+    <div class="container details"></div>
+        <h2 class="title"> Remove Inventory </h2>
+        <form class="login" method="POST" action="{{ url_for('remove_inventory', inventory_id=inventory[0].inventory_id) }}">
+
+            {% if inventory %}
+            <h2 class="title">{{inventory[0].inventoryname}}</h2>
+            <br />
+            Are you sure you want to delete?
+            <br />
+            <br />
+            <button class="flat" type="submit">Remove</button>
+            <!-- <a class="pure-button" href="{{ url_for('remove_inventory', inventory_id=inventory[0].inventory_id) }}">Yes</a>
+            <a class="pure-button" href="{{ url_for('single_inventory', inventory_id=inventory[0].inventory_id) }}">No</a> -->
+
+            {% endif %}
+        </form>
+        <br/>
+        <div>
+
+    </div>
+</div>
+{% include 'bottom.html'%}
