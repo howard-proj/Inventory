@@ -8,11 +8,9 @@
     <br />
     inventory stock has {{inventory[0].quantity}} {{ inventory[0].description }} left.
     <br />
+    <br />
     <a class="pure-button" href="{{ url_for('edit', inventory_id=inventory[0].inventory_id) }}">Edit</a>
     <a class="pure-button" href="{{ url_for('remove_inventory', inventory_id=inventory[0].inventory_id) }}">Remove</a>
-    <hr />
-    <h3>Artworks</h3>
-    <br />
 
     {% else %}
     <h2 class="title">Invalid Inventory ID</h2>
