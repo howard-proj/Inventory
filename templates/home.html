@@ -12,7 +12,7 @@
             <td>Inventory</td>
             <td>User</td>
             <td>Total Before</td>
-            <td>Stock Taken Or Supplied</td>
+            <td>Stock Taken / Supplied</td>
             <td>Total Sekarang</td>
             <td>Last Updated</td>
           </tr>    
@@ -26,7 +26,7 @@
             {% if instance.stock_taken_supplied < 0 %}
             <td bgcolor="lightcoral">OUT {{ instance.stock_taken_supplied }}</td>
             {% else %}
-            <td bgcolor="lightgreen">IN {{ instance.stock_taken_supplied }}</td>
+            <td bgcolor="lightgreen">IN + {{ instance.stock_taken_supplied }}</td>
             {% endif %}
             <td>{{ instance.stock_after }}</td>
             <td>{{ instance.lastviewed }}</td>

@@ -85,7 +85,7 @@ def logout():
 @app.route('/inventories')
 def list_inventories():
     if ('logged_in' not in session or not session['logged_in']):
-        return redirect(url_for('/login'))
+        return redirect(url_for('login'))
 
     page['title'] = 'List Inventories'
 
@@ -233,7 +233,6 @@ def edit(inventory_id):
         quantity_now = int(newdict['quantity'])
 
         current_total = quantity_now - quantity_before
-        print(user_details)
         # if there is no change, do nothing
         if (current_total == 0):
             pass

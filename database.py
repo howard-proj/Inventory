@@ -123,7 +123,6 @@ class SQLDatabase():
         #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Coklat Merah', 3, 'Karton');
         #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Merah', 3, 'Karton');
         #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Biru', 5, 'Karton');
-        # myDatabase.add_to_history(1, 1, 2, 1, 1, now)
         
     def check_credentials(self, username, password):
         sql_query = """
@@ -256,6 +255,7 @@ class SQLDatabase():
         sql_query = """
             SELECT inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
             FROM (Inventory inv JOIN History his USING(inventory_id)) JOIN USERS user USING(user_id)
+            ORDER BY his.history_id DESC
         """
         ## Returning things in JSON format
         result = []
@@ -316,6 +316,7 @@ class SQLDatabase():
 # print(myDatabase.select_all_inventories())
 
 # myDatabase.add_to_history(1, 1, 2, 1, 1, now)
+
 # print(myDatabase.select_all_history())
 
 # print(myDatabase.select_all_inventories())
