@@ -11,7 +11,7 @@ session = {}
 page = {}
 
 myDatabase = database.SQLDatabase()
-# myDatabase.database_setup()
+myDatabase.database_setup()
 
 
 app = Flask(__name__)

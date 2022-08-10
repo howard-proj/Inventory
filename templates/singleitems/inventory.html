@@ -12,6 +12,10 @@
     <a class="pure-button" href="{{ url_for('edit', inventory_id=inventory[0].inventory_id) }}">Edit</a>
     <a class="pure-button" href="{{ url_for('remove_inventory', inventory_id=inventory[0].inventory_id) }}">Remove</a>
 
+    <form class="login" action="{{url_for('list_inventories')}}">
+      <button class="flat" type="submit">Back</button>
+     </form>
+     
     {% else %}
     <h2 class="title">Invalid Inventory ID</h2>
     {% endif %}
