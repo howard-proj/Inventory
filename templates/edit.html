@@ -10,12 +10,11 @@
             <br/>
             Quantity: <input type="number" name="quantity" value="{{ inventory[0].quantity }}" placeholder="Total Stock" autofocus required>
             <br/>
-            Unit: 
+            Unit:
             <select name="description">
-                <option value="Karton">Karton</option>
-                <option value="Lusin">Lusin</option>
-                <option value="Pcs">Pack</option>
-                <option value="Pack">Pcs</option>
+            {% for description in appropriateDescription %}
+                <option value="{{ description }}">{{ description }}</option>
+            {% endfor %}
             </select>
             <br/>
 

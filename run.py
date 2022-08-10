@@ -183,7 +183,6 @@ def single_inventory(inventory_id):
     if inventory == None:
         inventory = []
 
-    print(inventory)
     return render_template('singleitems/inventory.html',
                             session=session,
                             page=page,
@@ -275,12 +274,17 @@ def edit(inventory_id):
 
         if inventory == None:
             inventory = []
-
+            appropriateDescription = []
+        else:
+            description = inventory[0]['description']
+            appropriateDescription = display_appropriate_optionvalues(description)
+            
         return render_template('edit.html',
                                 session=session,
                                 page=page,
                                 user=user_details,
-                                inventory=inventory)
+                                inventory=inventory,
+                                appropriateDescription=appropriateDescription)
 
 @app.route('/inventory/<inventory_id>/remove', methods=['GET', 'POST'])
 def remove_inventory(inventory_id):
@@ -338,6 +342,23 @@ def search_inventories():
 def display_image(filename):
     print("images/" + filename)
     return redirect(url_for('static', filename='images/' + filename), code=301)
+
+def display_appropriate_optionvalues(currentdescription):
+    option_list = ["Karton", "Gross", "Lusin", "Pack", "Pcs"]
+    output = []
+
+    for index in range(len(option_list)):
+        val = option_list[index]
+        if val == currentdescription:
+            output.append(val)
+            option_list.pop(index)
+            break
+
+    for val in option_list:
+        output.append(val)
+    
+    return output
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
