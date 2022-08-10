@@ -1,0 +1,16 @@
+{% include 'top.html' %}
+<div class="content">
+    <div class="container details"></div>
+        <h2 class="title"> Remove All History </h2>
+        <form class="login" method="POST" action="{{ url_for('remove_all_history') }}">
+            Are you sure you want to delete all history?
+            <br />
+            <br />
+            <button class="flat" type="submit">Delete</button>
+        </form>
+        <br/>
+        <div>
+
+    </div>
+</div>
+{% include 'bottom.html'%}

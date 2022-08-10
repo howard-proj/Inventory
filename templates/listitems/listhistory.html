@@ -1,0 +1,42 @@
+{% include 'top.html' %}
+<div class="content">
+  <div class="container details">
+    <h2 class="title">All History</h2>
+    <hr />
+    {% if session.logged_in %}
+    <a class="pure-button" href="{{ url_for('remove_all_history')}}">Remove All History</a>
+    {% endif %}
+    <div>
+      <!-- All History -->
+      <table class="styled">
+        <thead>
+          <tr>
+            <td>Inventory</td>
+            <td>User</td>
+            <td>Total Before</td>
+            <td>Stock Taken / Supplied</td>
+            <td>Total Sekarang</td>
+            <td>Last Updated</td>
+          </tr>
+        </thead>
+        <tbody>
+            {% for instance in history %}
+            <tr>
+              <td style="text-align: center">{{ instance.inventoryname }}</td>
+              <td>{{ instance.username }}</td>
+              <td>{{ instance.stock_before }}</td>
+              {% if instance.stock_taken_supplied < 0 %}
+              <td bgcolor="lightcoral" class="clickable-tr" data-href="{{ url_for('single_history', history_id=instance.history_id)}}">OUT {{ instance.stock_taken_supplied }}</td>
+              {% else %}
+              <td bgcolor="lightgreen" class="clickable-tr" data-href="{{ url_for('single_history', history_id=instance.history_id)}}">IN + {{ instance.stock_taken_supplied }}</td>
+              {% endif %}
+              <td>{{ instance.stock_after }}</td>
+              <td>{{ instance.lastviewed }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% include 'bottom.html'%}

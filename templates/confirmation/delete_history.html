@@ -1,0 +1,22 @@
+{% include 'top.html' %}
+<div class="content">
+    <div class="container details"></div>
+        <h2 class="title"> Remove History </h2>
+        <form class="login" method="POST" action="{{ url_for('remove_history', history_id=history[0].history_id) }}">
+
+            {% if history %}
+            <h2 class="title">{{history[0].inventoryname}} at {{history[0].lastviewed}}</h2>
+            <br />
+            Are you sure you want to delete?
+            <br />
+            <br />
+            <button class="flat" type="submit">Remove</button>
+
+            {% endif %}
+        </form>
+        <br/>
+        <div>
+
+    </div>
+</div>
+{% include 'bottom.html'%}

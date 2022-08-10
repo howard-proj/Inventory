@@ -253,7 +253,7 @@ class SQLDatabase():
 
     def select_all_history(self):
         sql_query = """
-            SELECT inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
+            SELECT his.history_id, inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
             FROM (Inventory inv JOIN History his USING(inventory_id)) JOIN USERS user USING(user_id)
             ORDER BY his.history_id DESC
         """
@@ -288,13 +288,37 @@ class SQLDatabase():
         
 
     def remove_all_history(self):
+        self.execute("DROP TABLE IF EXISTS History")
+        self.commit()
+
         sql_query = """
-            DELETE FROM History
+            CREATE TABLE History(
+            history_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER REFERENCES Users(user_id) NOT NULL,
+            inventory_id INTEGER REFERENCES Inventory(inventory_id) NOT NULL,
+            stock_before INTEGER,
+            stock_after INTEGER,
+            stock_taken_supplied INTEGER,
+            lastviewed DATE NOT NULL
+        )   
         """
         self.execute(sql_query)
         self.commit()
         return True
-        
+
+    def select_history(self, history_id):
+        sql_query = """
+            SELECT his.history_id, inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
+            FROM (Inventory inv JOIN History his USING(inventory_id)) JOIN USERS user USING(user_id)
+            WHERE his.history_id = '{history_id}'
+        """.format(history_id=history_id)
+        result = []
+        self.execute(sql_query)
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
 
     def remove_inventory(self,inventory_id):
         sql_query = """

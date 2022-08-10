@@ -304,7 +304,7 @@ def remove_inventory(inventory_id):
             inventory = []
 
 
-        return render_template('confirmation/delete.html',
+        return render_template('confirmation/delete_inventory.html',
                                 session=session,
                                 page=page,
                                 user=user_details,
@@ -337,6 +337,90 @@ def search_inventories():
                             page=page,
                             user=user_details,
                             inventories=inventories)
+
+@app.route('/history')
+def list_history():
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('login'))
+
+    page['title'] = 'History'
+
+    history = None
+    history = myDatabase.select_all_history()
+
+    # checking for integrity only
+    if history == None:
+        history = []
+
+    print(history)
+
+    return render_template("listitems/listhistory.html",
+                            session=session,
+                            page=page,
+                            user=user_details,
+                            history=history)
+
+
+@app.route('/history/<history_id>')
+def single_history(history_id):
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('/login'))
+
+    page['title'] = 'history'
+
+    history = None
+    history = myDatabase.select_history(history_id)
+
+    if history == None:
+        history = []
+
+    return render_template('singleitems/history.html',
+                            session=session,
+                            page=page,
+                            user=user_details,
+                            history=history)
+
+@app.route('/history/<history_id>/remove', methods=['GET', 'POST'])
+def remove_history(history_id):
+    if (request.method == 'POST'):
+        myDatabase.remove_history(history_id)
+
+        page['bar'] = True
+        flash("Updated Successfully")
+
+        return redirect(url_for('list_history'))
+
+    elif (request.method == 'GET'):
+        history = None
+        history = myDatabase.select_history(history_id)
+
+        if history == None:
+            history = []
+
+
+        return render_template('confirmation/delete_history.html',
+                                session=session,
+                                page=page,
+                                user=user_details,
+                                history=history)
+
+@app.route('/history/remove', methods=['GET', 'POST'])
+def remove_all_history():
+    if (request.method == 'POST'):
+        myDatabase.remove_all_history()
+
+        page['bar'] = True
+        flash("Updated Successfully")
+
+        return redirect(url_for('list_history'))
+
+    elif (request.method == 'GET'):
+
+        return render_template('confirmation/delete_all_history.html',
+                                session=session,
+                                page=page,
+                                user=user_details)
+
 
 @app.route('/display/<filename>')
 def display_image(filename):

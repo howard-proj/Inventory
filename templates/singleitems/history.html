@@ -1,0 +1,24 @@
+{% include 'top.html' %}
+<div class="content">
+  <div class="container details">
+    <!-- Check if We have a valid inventory -->
+    {% if history %}
+    <h2 class="title">{{history[0].inventoryname}}</h2>
+    
+    <br />
+    Nevada was taken / supplied by <strong>{{history[0].stock_taken_supplied}}</strong> at <strong>{{history[0].lastviewed}}</strong> by {{history[0].username}}.
+    <br />
+    <br />
+
+    <a class="pure-button" href="{{ url_for('remove_history', history_id=history[0].history_id) }}">Remove</a>
+
+    <form class="login" action="{{url_for('list_history')}}">
+      <button class="flat" type="submit">Back</button>
+     </form>
+     
+    {% else %}
+    <h2 class="title">Invalid History ID</h2>
+    {% endif %}
+  </div>
+</div>
+{% include 'bottom.html'%}
