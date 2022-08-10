@@ -4,7 +4,7 @@
 
         <h2 class="title"> Edit Inventory </h2>
 
-        <form class="login" method="POST" action="{{ url_for('edit', inventory_id=inventory[0].inventory_id) }}">
+        <form class="login" method="POST" action="{{ url_for('edit', inventory_id=inventory[0].inventory_id) }}" enctype="multipart/form-data">
 
             Inventory Name: <input type="text" name="inventoryname" value="{{ inventory[0].inventoryname }}" placeholder="Barang" autofocus required>
             <br/>
@@ -17,6 +17,12 @@
                 <option value="Pcs">Pack</option>
                 <option value="Pack">Pcs</option>
             </select>
+            <br/>
+
+            <br/>
+            <br/>
+
+            Picture: <input type="file" name="picture" autofocus>
             <br/>
             <button class="flat" type="submit">Edit</button>
             <br/>

@@ -6,7 +6,7 @@
     <h2 class="title">{{inventory[0].inventoryname}}</h2>
     
     <br />
-    inventory stock has {{inventory[0].quantity}} {{ inventory[0].description }} left.
+    This item has <strong>{{inventory[0].quantity}} {{ inventory[0].description }}</strong> stock left.
     <br />
     <br />
     <a class="pure-button" href="{{ url_for('edit', inventory_id=inventory[0].inventory_id) }}">Edit</a>

@@ -5,8 +5,6 @@ from datetime import datetime
 # Practicing a good separation of concerns, we should only ever call
 # These functions from our models
 
-# If you notice anything out of place here, consider it to your advantage and don't spoil the surprise
-
 class SQLDatabase():
     # Get the database running
     def __init__(self, database_arg="database.db"):
@@ -116,13 +114,6 @@ class SQLDatabase():
             INSERT INTO Images(inventory_id, filename) VALUES(7, 'gunting-besar.png');
         """)
         self.commit()
-
-        # INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm merah', 3, 'Karton');
-        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('24mm biru', 5, 'Karton');
-        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Bening Merah', 2, 'Karton');
-        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Lakban Coklat Merah', 3, 'Karton');
-        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Merah', 3, 'Karton');
-        #     INSERT INTO Inventory(inventoryname, quantity, description) VALUES('12mm Biru', 5, 'Karton');
         
     def check_credentials(self, username, password):
         sql_query = """
@@ -179,12 +170,21 @@ class SQLDatabase():
 
         return True
     
-    def update_inventory(self, inventory_id, inventoryname, quantity, description):
+    def update_inventory(self, inventory_id, inventoryname, quantity, description, filename=None):
         sql_cmd = """
                 UPDATE Inventory
                 SET inventoryname = '{inventoryname}', quantity = {quantity}, description = '{description}'
                 WHERE inventory_id = {inventory_id}
             """.format(inventory_id=inventory_id, inventoryname=inventoryname, quantity=quantity, description=description)
+        self.execute(sql_cmd)
+
+        if filename is not None:
+            sql_cmd = """
+            UPDATE Images
+            SET filename = '{filename}'
+            WHERE inventory_id = {inventory_id}
+            """.format(filename=filename, inventory_id=inventory_id)
+        
         self.execute(sql_cmd)
         self.commit()
         return True
@@ -322,12 +322,42 @@ class SQLDatabase():
             result.append({a:b for a,b in zip(cols, row)})
         return result
 
+    def find_matchinghistory_name(self, searchterm):
+        sql_query = """
+            SELECT inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
+            FROM (Inventory inv JOIN History his USING(inventory_id)) JOIN USERS user USING(user_id)
+            WHERE LOWER(inv.inventoryname) LIKE LOWER('%{searchterm}%')
+            ORDER BY his.history_id DESC
+        """.format(searchterm=searchterm)
+        result = []
+        self.execute(sql_query)
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
+
+    def find_matchinghistory_date(self, searchterm):
+        sql_query = """
+            SELECT inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
+            FROM (Inventory inv JOIN History his USING(inventory_id)) JOIN USERS user USING(user_id)
+            WHERE LOWER(his.lastviewed) LIKE LOWER('%{searchterm}%')
+            ORDER BY his.history_id DESC
+        """.format(searchterm=searchterm)
+        result = []
+        self.execute(sql_query)
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
+
 
 
 # myDatabase = SQLDatabase()
 # myDatabase.database_setup()
 # Nevada_id = 1, before 2, taken 1, left 1
-# print(myDatabase.find_matchinginventories("nevada"))
+# print(myDatabase.find_matchinghistory_name("nevada"))
 
 # myDatabase.add_to_history(1, 1, 2, 1, 1, now)
 

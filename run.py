@@ -11,7 +11,7 @@ session = {}
 page = {}
 
 myDatabase = database.SQLDatabase()
-myDatabase.database_setup()
+# myDatabase.database_setup()
 
 
 app = Flask(__name__)
@@ -227,6 +227,17 @@ def edit(inventory_id):
         else:
             newdict['description'] = request.form['description']
 
+        if request.files['picture'] is None:
+            file = None
+        else:
+            file = request.files['picture']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                newdict['picture'] = file.filename
+            else:
+                file = None
+
         # Check if the edit added or subtracted our inventory
         item = myDatabase.select_inventory(inventory_id)
         quantity_before = int(item[0]['quantity'])
@@ -247,7 +258,11 @@ def edit(inventory_id):
                 myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%d/%m/%Y %H:%M:%S"))
 
         #Update the database here
-        myDatabase.update_inventory(inventory_id, newdict['inventoryname'], newdict['quantity'], newdict['description'])
+        if file is None:
+            print("ENTERED HERE")
+            myDatabase.update_inventory(inventory_id, newdict['inventoryname'], newdict['quantity'], newdict['description'])
+        else:
+            myDatabase.update_inventory(inventory_id, newdict['inventoryname'], newdict['quantity'], newdict['description'], newdict['picture'])
 
         page['bar'] = True
         flash("Updated Successfully")
