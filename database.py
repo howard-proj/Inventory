@@ -305,15 +305,29 @@ class SQLDatabase():
         self.commit()
         return True
 
+    def find_matchinginventories(self, searchterm):
+        sql_query = """
+            SELECT inv.inventory_id, inv.inventoryname, inv.quantity, inv.description, im.filename
+            FROM Inventory inv INNER JOIN Images im
+            ON inv.inventory_id = im.inventory_id
+            WHERE LOWER(inv.inventoryname) LIKE LOWER('%{searchterm}%')
+            ORDER BY inv.inventory_id 
+        """.format(searchterm=searchterm)
+        # print(sql_query)
+        result = []
+        self.execute(sql_query)
+        cols = [a[0] for a in self.cur.description]
+        returning = self.cur.fetchall()
+        for row in returning:
+            result.append({a:b for a,b in zip(cols, row)})
+        return result
 
 
 
 # myDatabase = SQLDatabase()
 # myDatabase.database_setup()
-# myDatabase.add_users("Kanday", "bos123", 1)
-# myDatabase.add_inventory("Nevada", 120, "Lusin")
 # Nevada_id = 1, before 2, taken 1, left 1
-# print(myDatabase.select_all_inventories())
+# print(myDatabase.find_matchinginventories("nevada"))
 
 # myDatabase.add_to_history(1, 1, 2, 1, 1, now)
 

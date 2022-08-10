@@ -38,16 +38,16 @@
                     </ul>
                 </div>
                 {% if session.logged_in %}
-                    <div>
+                    <div style="float:right">
                         <form name="searchform" class="Search" method="POST" action="" onsubmit="getsearchtarget()" >
-                            <input type="text" name="searchterm"  list="fuzzy-suggestion"  placeholder="Search here" autofocus required>
+                            <input type="text" name="searchterm" placeholder="Search Term" autofocus required>
                             <br/>
 
                             <select id="searchtarget" name="searchtarget">
+                                <option value="{{ url_for('search_inventories' ) }}">Inventories</option>
                             </select>
                             <button type="submit">Search</button>
                         </form>
-
                     </div>
                 {% endif %}
             </header>

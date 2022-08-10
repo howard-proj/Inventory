@@ -291,6 +291,33 @@ def remove_inventory(inventory_id):
                                 user=user_details,
                                 inventory=inventory)
 
+@app.route('/search/inventories', methods=['GET', 'POST'])
+def search_inventories():
+     # Check if the user is logged in, if not: back to login.
+    if('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('login'))
+
+    page['title'] = 'TV Show Search'
+
+    inventories = None
+    if (request.method == 'POST'):
+        inventories = myDatabase.find_matchinginventories(request.form['searchterm'])
+
+    # data integrity checks
+    if inventories == None or inventories == []:
+        inventories = []
+        page['bar'] = False
+        flash("No matching inventories, please try again")
+    else:
+        page['bar'] = True
+        flash('Found ' + str(len(inventories)) + ' inventories')
+        session['logged_in'] = True
+
+    return render_template('searchitems/search_inventories.html',
+                            session=session,
+                            page=page,
+                            user=user_details,
+                            inventories=inventories)
 
 @app.route('/display/<filename>')
 def display_image(filename):
@@ -298,4 +325,4 @@ def display_image(filename):
     return redirect(url_for('static', filename='images/' + filename), code=301)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8000)

@@ -1,0 +1,41 @@
+{% include 'top.html' %}
+    <div class="content">
+        <h1 class="title">Search Inventories</h1>
+
+        <form class="Search" method="POST" action="{{url_for('search_inventories')}}">
+            <input type="text" name="searchterm" placeholder="Inventory" autofocus required>
+            <button class="flat" type="submit">Search</button>
+        </form>
+            {% if inventories %}
+                <table class="styled">
+                    <thead>
+                        <tr>
+                            <td>Product ID</td>
+                            <td>Image</td>
+                            <td>Product Name</td>
+                            <td>Total Quantity</td>
+                            <td>Unit</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for instance in inventories %}
+                        <!-- Each row is a link to each individual tvshow page -->
+                        {% if instance.quantity <= 2 %}
+                        <tr bgcolor="lightcoral" class="clickable-tr" data-href="{{ url_for('single_inventory', inventory_id=instance.inventory_id)}}" >
+                        {% else %}
+                        <tr class="clickable-tr" data-href="{{ url_for('single_inventory', inventory_id=instance.inventory_id)}}" >
+                        {% endif %}
+                        <td style="text-align: center">{{ instance.inventory_id }}</td>
+                        <td> <img src="{{ url_for('display_image', filename=instance.filename) }}" width=40, height=40>
+                        </td>
+                        
+                        <td>{{ instance.inventoryname }}</td>
+                        <td>{{ instance.quantity }} </td>
+                        <td>{{ instance.description }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+    </div>
+{% include 'bottom.html'%}
