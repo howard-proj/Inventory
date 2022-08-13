@@ -4,6 +4,7 @@ import urllib.request
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from hashlib import sha256
 # from modules import *
 
 user_details = {}
@@ -11,7 +12,7 @@ session = {}
 page = {}
 
 myDatabase = database.SQLDatabase()
-# myDatabase.database_setup()
+####### myDatabase.database_setup()
 
 
 app = Flask(__name__)
@@ -31,9 +32,12 @@ def allowed_file(filename):
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if (request.method == 'POST'):
+        hashed_password = request.form['password'] + "+ayam"
+        hashed_password = str(sha256(hashed_password.encode("utf-8")).hexdigest())
+        print(hashed_password)
         login_data = myDatabase.check_credentials(
             request.form['username'],
-            request.form['password']
+            hashed_password
         )
         # 1) error case
         if login_data is False:
@@ -48,6 +52,7 @@ def login():
 
         global user_details
         user_details = login_data[0]
+        print(user_details)
 
         return redirect(url_for('home'))
 
@@ -480,7 +485,7 @@ def remove_all_history():
 
 @app.route('/display/<filename>')
 def display_image(filename):
-    print("images/" + filename)
+    # print("images/" + filename)
     return redirect(url_for('static', filename='images/' + filename), code=301)
 
 def display_appropriate_optionvalues(currentdescription):

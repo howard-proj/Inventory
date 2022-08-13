@@ -89,8 +89,8 @@ class SQLDatabase():
         self.commit()
 
         self.execute("""
-            INSERT INTO Users(username, password, admin) VALUES('kanday', 'bos123', 1);
-            INSERT INTO Users(username, password, admin) VALUES('biasa', 'bisa123', 0);
+            INSERT INTO Users(username, password, admin) VALUES('kanday', '0ec1b69bb27115a038133363eda8ac5293ee5f6f79324bda1f124d13b607471d', 1);
+            INSERT INTO Users(username, password, admin) VALUES('ronald', '5c26e4678608fc0fcdf34ecba6b2b074d53fe90fec1d49c5e5d6e77a1abcf6de', 0);
 
             INSERT INTO Inventory(inventoryname, quantity, description) VALUES('Nevada', 2, 'Karton');
             INSERT INTO Images(inventory_id, filename) VALUES(1, 'nevada.png');

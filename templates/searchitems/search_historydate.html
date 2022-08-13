@@ -26,9 +26,9 @@
                             <td>{{ instance.username }}</td>
                             <td>{{ instance.stock_before }}</td>
                             {% if instance.stock_taken_supplied < 0 %}
-                            <td bgcolor="lightcoral" class="clickable-tr" data-href="{{ url_for('single_history', history_id=instance.history_id)}}">OUT {{ instance.stock_taken_supplied }}</td>
+                            <td bgcolor="lightcoral" class="clickable-tr" >OUT {{ instance.stock_taken_supplied }}</td>
                             {% else %}
-                            <td bgcolor="lightgreen" class="clickable-tr" data-href="{{ url_for('single_history', history_id=instance.history_id)}}">IN + {{ instance.stock_taken_supplied }}</td>
+                            <td bgcolor="lightgreen" class="clickable-tr" >IN + {{ instance.stock_taken_supplied }}</td>
                             {% endif %}
                             <td>{{ instance.stock_after }}</td>
                             <td>{{ instance.lastviewed }}</td>
