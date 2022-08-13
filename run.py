@@ -12,7 +12,7 @@ session = {}
 page = {}
 
 myDatabase = database.SQLDatabase()
-####### myDatabase.database_setup()
+####### myDatabase.database_setup() ########
 
 
 app = Flask(__name__)
@@ -34,7 +34,6 @@ def login():
     if (request.method == 'POST'):
         hashed_password = request.form['password'] + "+ayam"
         hashed_password = str(sha256(hashed_password.encode("utf-8")).hexdigest())
-        print(hashed_password)
         login_data = myDatabase.check_credentials(
             request.form['username'],
             hashed_password
@@ -199,14 +198,9 @@ def edit(inventory_id):
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('/login'))
 
-    # print(user_details)
-    # if (user_details['admin'] == 0):
-    #     print("ENTERED")
-    #     redirect(url_for('list_inventories'))
 
     page['title'] = 'Inventory edit'
 
-    print("request form is:")
     newdict = {}
     # print(request.form)
 
@@ -293,6 +287,9 @@ def edit(inventory_id):
 
 @app.route('/inventory/<inventory_id>/remove', methods=['GET', 'POST'])
 def remove_inventory(inventory_id):
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('/login'))
+
     if (request.method == 'POST'):
         myDatabase.remove_inventory(inventory_id)
 
@@ -404,6 +401,9 @@ def list_history():
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('login'))
 
+    if (user_details['admin'] == 0):
+        return redirect(url_for('list_inventories'))
+
     page['title'] = 'History'
 
     history = None
@@ -412,8 +412,6 @@ def list_history():
     # checking for integrity only
     if history == None:
         history = []
-
-    print(history)
 
     return render_template("listitems/listhistory.html",
                             session=session,
@@ -426,6 +424,9 @@ def list_history():
 def single_history(history_id):
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('/login'))
+
+    if (user_details['admin'] == 0):
+        return redirect(url_for('list_inventories'))
 
     page['title'] = 'history'
 
@@ -443,6 +444,12 @@ def single_history(history_id):
 
 @app.route('/history/<history_id>/remove', methods=['GET', 'POST'])
 def remove_history(history_id):
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('/login'))
+
+    if (user_details['admin'] == 0):
+        return redirect(url_for('list_inventories'))
+
     if (request.method == 'POST'):
         myDatabase.remove_history(history_id)
 
@@ -467,6 +474,12 @@ def remove_history(history_id):
 
 @app.route('/history/remove', methods=['GET', 'POST'])
 def remove_all_history():
+    if ('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('/login'))
+        
+    if (user_details['admin'] == 0):
+        return redirect(url_for('list_inventories'))
+
     if (request.method == 'POST'):
         myDatabase.remove_all_history()
 
