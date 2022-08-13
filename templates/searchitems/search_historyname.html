@@ -1,0 +1,41 @@
+{% include 'top.html' %}
+    <div class="content">
+        <h1 class="title">Search history</h1>
+
+        <form class="Search" method="POST" action="{{url_for('search_history_name')}}">
+            <input type="text" name="searchterm" placeholder="History" autofocus required>
+            <button class="flat" type="submit">Search</button>
+        </form>
+            {% if histories %}
+                <table class="styled">
+                    <thead>
+                        <tr>
+                            <td>Inventory</td>
+                            <td>User</td>
+                            <td>Total Before</td>
+                            <td>Stock Taken / Supplied</td>
+                            <td>Total Sekarang</td>
+                            <td>Last Updated</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for instance in histories %}
+                        <!-- Each row is a link to each individual history page -->
+                        <tr>
+                            <td style="text-align: center">{{ instance.inventoryname }}</td>
+                            <td>{{ instance.username }}</td>
+                            <td>{{ instance.stock_before }}</td>
+                            {% if instance.stock_taken_supplied < 0 %}
+                            <td bgcolor="lightcoral" class="clickable-tr" data-href="{{ url_for('single_history', history_id=instance.history_id)}}">OUT {{ instance.stock_taken_supplied }}</td>
+                            {% else %}
+                            <td bgcolor="lightgreen" class="clickable-tr" data-href="{{ url_for('single_history', history_id=instance.history_id)}}">IN + {{ instance.stock_taken_supplied }}</td>
+                            {% endif %}
+                            <td>{{ instance.stock_after }}</td>
+                            <td>{{ instance.lastviewed }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+    </div>
+{% include 'bottom.html'%}

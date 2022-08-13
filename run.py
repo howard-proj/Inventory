@@ -11,7 +11,7 @@ session = {}
 page = {}
 
 myDatabase = database.SQLDatabase()
-myDatabase.database_setup()
+# myDatabase.database_setup()
 
 
 app = Flask(__name__)
@@ -250,11 +250,11 @@ def edit(inventory_id):
             # case 1: subtraction of inventory
             time_now = datetime.now()
             if (current_total < 0):
-                myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%d/%m/%Y %H:%M:%S"))
+                myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%Y-%m-%d %H:%M:%S"))
 
             # case 2: addition of inventory
             elif (current_total > 0):
-                myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%d/%m/%Y %H:%M:%S"))
+                myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%Y-%m-%d %H:%M:%S"))
 
         #Update the database here
         if file is None:
@@ -316,7 +316,7 @@ def search_inventories():
     if('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('login'))
 
-    page['title'] = 'TV Show Search'
+    page['title'] = 'Inventory search'
 
     inventories = None
     if (request.method == 'POST'):
@@ -337,6 +337,62 @@ def search_inventories():
                             page=page,
                             user=user_details,
                             inventories=inventories)
+
+@app.route('/search/historyname', methods=['GET', 'POST'])
+def search_history_name():
+     # Check if the user is logged in, if not: back to login.
+    if('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('login'))
+
+    page['title'] = 'History search on inventory name'
+
+    histories = None
+    if (request.method == 'POST'):
+        histories = myDatabase.find_matchinghistory_name(request.form['searchterm'])
+
+    # data integrity checks
+    if histories == None or histories == []:
+        histories = []
+        page['bar'] = False
+        flash("No matching history, please try again")
+    else:
+        page['bar'] = True
+        flash('Found ' + str(len(histories)) + ' histories')
+        session['logged_in'] = True
+
+    return render_template('searchitems/search_historyname.html',
+                            session=session,
+                            page=page,
+                            user=user_details,
+                            histories=histories)
+
+@app.route('/search/historydate', methods=['GET', 'POST'])
+def search_history_date():
+     # Check if the user is logged in, if not: back to login.
+    if('logged_in' not in session or not session['logged_in']):
+        return redirect(url_for('login'))
+
+    page['title'] = 'History search on inventory date'
+
+    histories = None
+    if (request.method == 'POST'):
+        histories = myDatabase.find_matchinghistory_date(request.form['searchterm'])
+
+    # data integrity checks
+    if histories == None or histories == []:
+        histories = []
+        page['bar'] = False
+        flash("No matching history, please try again")
+    else:
+        page['bar'] = True
+        flash('Found ' + str(len(histories)) + ' histories')
+        session['logged_in'] = True
+
+    return render_template('searchitems/search_historydate.html',
+                            session=session,
+                            page=page,
+                            user=user_details,
+                            histories=histories)
 
 @app.route('/history')
 def list_history():

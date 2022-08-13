@@ -348,7 +348,7 @@ class SQLDatabase():
 
     def find_matchinghistory_name(self, searchterm):
         sql_query = """
-            SELECT inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
+            SELECT his.history_id, inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
             FROM (Inventory inv JOIN History his USING(inventory_id)) JOIN USERS user USING(user_id)
             WHERE LOWER(inv.inventoryname) LIKE LOWER('%{searchterm}%')
             ORDER BY his.history_id DESC
@@ -363,10 +363,10 @@ class SQLDatabase():
 
     def find_matchinghistory_date(self, searchterm):
         sql_query = """
-            SELECT inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
+            SELECT his.history_id, inv.inventoryname, user.username, his.stock_before, his.stock_after, his.stock_taken_supplied, his.lastviewed
             FROM (Inventory inv JOIN History his USING(inventory_id)) JOIN USERS user USING(user_id)
-            WHERE LOWER(his.lastviewed) LIKE LOWER('%{searchterm}%')
-            ORDER BY his.history_id DESC
+            WHERE his.lastviewed BETWEEN '{searchterm}' AND DATE('{searchterm}', '+1 days')
+            ORDER BY his.lastviewed DESC
         """.format(searchterm=searchterm)
         result = []
         self.execute(sql_query)
@@ -379,6 +379,10 @@ class SQLDatabase():
 
 
 # myDatabase = SQLDatabase()
+# print(myDatabase.select_all_history())
+# print(myDatabase.find_matchinghistory_date('2022-08-13'))
+
+
 # myDatabase.database_setup()
 # Nevada_id = 1, before 2, taken 1, left 1
 # print(myDatabase.find_matchinghistory_name("nevada"))

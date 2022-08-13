@@ -46,6 +46,8 @@
 
                             <select id="searchtarget" name="searchtarget">
                                 <option value="{{ url_for('search_inventories' ) }}">Inventories</option>
+                                <option value="{{ url_for('search_history_name' ) }}">History: Name</option>
+                                <option value="{{ url_for('search_history_date' ) }}">History: Date</option>
                             </select>
                             <button type="submit">Search</button>
                         </form>
