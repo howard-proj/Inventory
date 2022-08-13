@@ -1,5 +1,5 @@
 import database
-from flask import Flask, redirect, render_template, flash, url_for, request
+from flask import Flask, redirect, render_template, flash, url_for, request, session
 import urllib.request
 import os
 from werkzeug.utils import secure_filename
@@ -7,8 +7,6 @@ from datetime import datetime
 from hashlib import sha256
 # from modules import *
 
-user_details = {}
-session = {}
 page = {}
 
 myDatabase = database.SQLDatabase()
@@ -28,7 +26,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/', methods=["GET", "POST"])
+
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if (request.method == 'POST'):
@@ -47,19 +45,22 @@ def login():
         # 2) no error case
         page['bar'] = True
         flash("You have logged in successfully")
-        session['logged_in'] = True
 
-        global user_details
-        user_details = login_data[0]
-        print(user_details)
+        session['username'] = login_data[0]['username']
+        session['admin'] = login_data[0]['admin']
+        session['user_id'] = login_data[0]['user_id']
+        session['logged_in'] = True
+        # print(session, "Session Here")
 
         return redirect(url_for('home'))
 
     elif(request.method == 'GET'):
         return render_template("login.html", page=page)
 
+@app.route('/')
 @app.route('/home')
 def home():
+    # print(session, "next up")
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('login'))
 
@@ -74,13 +75,14 @@ def home():
     
     return render_template("home.html", 
                             page=page,
-                            session=session,
-                            user=user_details,
+                            user=session,
                             user_history=user_history)
 
 @app.route('/logout')
 def logout():
-    session['logged_in'] = False
+    session.pop('logeed_in', None)
+    session.pop('username', None)
+    session.pop('admin', None)
     page['bar'] = True
     flash("You have logged out")
     return redirect(url_for('home'))
@@ -101,9 +103,8 @@ def list_inventories():
         allinventories = []
 
     return render_template("listitems/listinventories.html",
-                            session=session,
+                            user=session,
                             page=page,
-                            user=user_details,
                             allinventories=allinventories)
 
 @app.route('/inventory/create', methods=["POST", "GET"])
@@ -169,9 +170,8 @@ def add_inventory():
         return redirect(url_for('list_inventories'))
     else:
         return render_template('createitems/createinventory.html',
-                           session=session,
-                           page=page,
-                           user=user_details)
+                           user=session,
+                           page=page)
 
                         
 @app.route('/inventory/<inventory_id>')
@@ -188,9 +188,8 @@ def single_inventory(inventory_id):
         inventory = []
 
     return render_template('singleitems/inventory.html',
-                            session=session,
+                            user=session,
                             page=page,
-                            user=user_details,
                             inventory=inventory)
 
 @app.route('/inventory/<inventory_id>/edit', methods=['POST', 'GET'])
@@ -249,11 +248,11 @@ def edit(inventory_id):
             # case 1: subtraction of inventory
             time_now = datetime.now()
             if (current_total < 0):
-                myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%Y-%m-%d %H:%M:%S"))
+                myDatabase.add_to_history(session['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%Y-%m-%d %H:%M:%S"))
 
             # case 2: addition of inventory
             elif (current_total > 0):
-                myDatabase.add_to_history(user_details['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%Y-%m-%d %H:%M:%S"))
+                myDatabase.add_to_history(session['user_id'], inventory_id, quantity_before, quantity_now, current_total, time_now.strftime("%Y-%m-%d %H:%M:%S"))
 
         #Update the database here
         if file is None:
@@ -279,9 +278,8 @@ def edit(inventory_id):
             appropriateDescription = display_appropriate_optionvalues(description)
             
         return render_template('edit.html',
-                                session=session,
+                                user=session,
                                 page=page,
-                                user=user_details,
                                 inventory=inventory,
                                 appropriateDescription=appropriateDescription)
 
@@ -307,9 +305,8 @@ def remove_inventory(inventory_id):
 
 
         return render_template('confirmation/delete_inventory.html',
-                                session=session,
+                                user=session,
                                 page=page,
-                                user=user_details,
                                 inventory=inventory)
 
 @app.route('/search/inventories', methods=['GET', 'POST'])
@@ -335,9 +332,8 @@ def search_inventories():
         session['logged_in'] = True
 
     return render_template('searchitems/search_inventories.html',
-                            session=session,
+                            user=session,
                             page=page,
-                            user=user_details,
                             inventories=inventories)
 
 @app.route('/search/historyname', methods=['GET', 'POST'])
@@ -363,9 +359,8 @@ def search_history_name():
         session['logged_in'] = True
 
     return render_template('searchitems/search_historyname.html',
-                            session=session,
+                            user=session,
                             page=page,
-                            user=user_details,
                             histories=histories)
 
 @app.route('/search/historydate', methods=['GET', 'POST'])
@@ -391,9 +386,8 @@ def search_history_date():
         session['logged_in'] = True
 
     return render_template('searchitems/search_historydate.html',
-                            session=session,
+                            user=session,
                             page=page,
-                            user=user_details,
                             histories=histories)
 
 @app.route('/history')
@@ -401,7 +395,7 @@ def list_history():
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('login'))
 
-    if (user_details['admin'] == 0):
+    if (session['admin'] == 0):
         return redirect(url_for('list_inventories'))
 
     page['title'] = 'History'
@@ -414,9 +408,8 @@ def list_history():
         history = []
 
     return render_template("listitems/listhistory.html",
-                            session=session,
+                            user=session,
                             page=page,
-                            user=user_details,
                             history=history)
 
 
@@ -425,7 +418,7 @@ def single_history(history_id):
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('/login'))
 
-    if (user_details['admin'] == 0):
+    if (session['admin'] == 0):
         return redirect(url_for('list_inventories'))
 
     page['title'] = 'history'
@@ -437,9 +430,8 @@ def single_history(history_id):
         history = []
 
     return render_template('singleitems/history.html',
-                            session=session,
+                            user=session,
                             page=page,
-                            user=user_details,
                             history=history)
 
 @app.route('/history/<history_id>/remove', methods=['GET', 'POST'])
@@ -447,7 +439,7 @@ def remove_history(history_id):
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('/login'))
 
-    if (user_details['admin'] == 0):
+    if (session['admin'] == 0):
         return redirect(url_for('list_inventories'))
 
     if (request.method == 'POST'):
@@ -467,9 +459,8 @@ def remove_history(history_id):
 
 
         return render_template('confirmation/delete_history.html',
-                                session=session,
+                                user=session,
                                 page=page,
-                                user=user_details,
                                 history=history)
 
 @app.route('/history/remove', methods=['GET', 'POST'])
@@ -477,7 +468,7 @@ def remove_all_history():
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('/login'))
         
-    if (user_details['admin'] == 0):
+    if (session['admin'] == 0):
         return redirect(url_for('list_inventories'))
 
     if (request.method == 'POST'):
@@ -491,9 +482,8 @@ def remove_all_history():
     elif (request.method == 'GET'):
 
         return render_template('confirmation/delete_all_history.html',
-                                session=session,
-                                page=page,
-                                user=user_details)
+                                user=session,
+                                page=page)
 
 
 @app.route('/display/<filename>')
@@ -519,4 +509,4 @@ def display_appropriate_optionvalues(currentdescription):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000)
+    app.run(debug=True, port=8000, host="0.0.0.0")
