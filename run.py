@@ -30,7 +30,7 @@ def allowed_file(filename):
 @app.before_request
 def make_session_new():
     session.permanent = True
-    app.permanent_session_lifetime = timedelta(minutes=15)
+    app.permanent_session_lifetime = timedelta(minutes=45)
     session.modified = True
 
 @app.route('/login', methods=["GET", "POST"])

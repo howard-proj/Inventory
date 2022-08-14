@@ -20,7 +20,7 @@
                     <tbody>
                         {% for instance in inventories %}
                         <!-- Each row is a link to each individual tvshow page -->
-                        {% if instance.quantity <= 2 %}
+                        {% if instance.quantity == 0 %}
                         <tr bgcolor="lightcoral" class="clickable-tr" data-href="{{ url_for('single_inventory', inventory_id=instance.inventory_id)}}" >
                         {% else %}
                         <tr class="clickable-tr" data-href="{{ url_for('single_inventory', inventory_id=instance.inventory_id)}}" >
