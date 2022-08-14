@@ -3,7 +3,7 @@ from flask import Flask, redirect, render_template, flash, url_for, request, ses
 import urllib.request
 import os
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, timedelta
 from hashlib import sha256
 # from modules import *
 
@@ -26,6 +26,12 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
+@app.before_request
+def make_session_new():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=15)
+    session.modified = True
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -50,7 +56,7 @@ def login():
         session['admin'] = login_data[0]['admin']
         session['user_id'] = login_data[0]['user_id']
         session['logged_in'] = True
-        # print(session, "Session Here")
+        print(session, "Session Here")
 
         return redirect(url_for('home'))
 
@@ -60,7 +66,7 @@ def login():
 @app.route('/')
 @app.route('/home')
 def home():
-    # print(session, "next up")
+    print(session, "next up")
     if ('logged_in' not in session or not session['logged_in']):
         return redirect(url_for('login'))
 
@@ -80,11 +86,12 @@ def home():
 
 @app.route('/logout')
 def logout():
-    session.pop('logeed_in', None)
+    session.pop('logged_in', None)
     session.pop('username', None)
     session.pop('admin', None)
     page['bar'] = True
     flash("You have logged out")
+    print(session)
     return redirect(url_for('home'))
     
 
